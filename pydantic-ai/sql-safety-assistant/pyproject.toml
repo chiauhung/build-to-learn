@@ -1,0 +1,21 @@
+[project]
+name = "pydantic-ai-learn"
+version = "0.1.0"
+description = "Learn Pydantic AI by building a SQL Safety Assistant"
+requires-python = ">=3.11"
+dependencies = [
+    "pydantic-ai[google]",
+    "duckdb",
+    "fastapi",
+    "uvicorn[standard]",
+]
+
+[project.optional-dependencies]
+redis = [
+    "redis",
+]
+dev = [
+    "ruff",
+    "pytest",
+    "pytest-asyncio",
+]

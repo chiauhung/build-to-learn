@@ -1,0 +1,10 @@
+[project]
+name = "pydantic-ai-demo"
+version = "0.1.0"
+description = "Pydantic AI demo for backend engineering team — DI boundary + loop control vs Mastra"
+requires-python = ">=3.11"
+dependencies = [
+    "pydantic-ai[google]",
+    "duckdb",
+    "chainlit",
+]
