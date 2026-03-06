@@ -30,8 +30,16 @@ Two projects exploring Pydantic AI from different angles:
 
 ---
 
+### [Early Work](./early-work/)
+
+Notebooks from 2017–2020 — older and less polished, kept for authenticity.
+
+- **[Statistics](./early-work/statistics/)** — Linear regression from first principles (R², F-stat, QQ plots) and Bayesian linear regression with PyMC3. From my MSc in Statistics.
+
+---
+
 ## About Me
 
 Senior Data Engineer with 8+ years of experience in real-time data platforms, LLMOps, and multi-region cloud architecture on GCP. I build and scale production systems — CDC pipelines, AI agent infrastructure, analytics platforms — while mentoring engineers and driving cross-functional adoption.
 
-[LinkedIn](https://linkedin.com/in/chiau-hung-lee-612773126) · [GitHub](https://github.com/neurotichl)
+[LinkedIn](https://linkedin.com/in/chiau-hung-lee-612773126) · [GitHub](https://github.com/chiauhung)
