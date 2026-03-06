@@ -4,3 +4,4 @@ __pycache__/
 .DS_Store
 sessions/
 .chainlit/.cache/
+SLIDES_PROMPT.md
