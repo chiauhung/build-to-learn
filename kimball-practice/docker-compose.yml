@@ -1,0 +1,35 @@
+services:
+  # PostgreSQL - Star Schema Target
+  postgres:
+    image: postgres:16
+    container_name: kimball-postgres
+    environment:
+      POSTGRES_DB: kimball_dw
+      POSTGRES_USER: dw_user
+      POSTGRES_PASSWORD: dw_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./retail-sales/target/init.sql:/docker-entrypoint-initdb.d/01_init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dw_user -d kimball_dw"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # PubSub Emulator - Message Queue
+  pubsub-emulator:
+    image: gcr.io/google.com/cloudsdktool/google-cloud-cli:emulators
+    container_name: kimball-pubsub
+    command: >
+      gcloud beta emulators pubsub start
+      --host-port=0.0.0.0:8085
+      --project=kimball-practice
+    ports:
+      - "8085:8085"
+    environment:
+      - PUBSUB_PROJECT_ID=kimball-practice
+
+volumes:
+  postgres_data:

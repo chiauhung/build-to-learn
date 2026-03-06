@@ -30,6 +30,14 @@ Two projects exploring Pydantic AI from different angles:
 
 ---
 
+### [Kimball Data Warehouse](./kimball-practice/)
+
+Implements the retail sales example from *The Data Warehouse Toolkit* (Kimball) from scratch — star schema design, SCD Type 2 dimensions, and an Apache Beam ETL pipeline that takes messy staging data to a clean fact table.
+
+`Python` · `Apache Beam` · `PostgreSQL` · `Star Schema` · `SCD Type 2`
+
+---
+
 ### [Early Work](./early-work/)
 
 Notebooks from 2017–2020 — older and less polished, kept for authenticity.
