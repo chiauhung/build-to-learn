@@ -1,0 +1,85 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: husbando_chronicles
+      POSTGRES_USER: gacha
+      POSTGRES_PASSWORD: gacha_local
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./seed/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+    command:
+      - "postgres"
+      - "-c"
+      - "wal_level=logical"           # Enable logical replication for CDC
+      - "-c"
+      - "max_replication_slots=4"
+      - "-c"
+      - "max_wal_senders=4"
+
+  langfuse:
+    image: langfuse/langfuse:latest
+    environment:
+      DATABASE_URL: postgresql://gacha:gacha_local@langfuse-db:5432/langfuse
+      NEXTAUTH_SECRET: local-secret-change-me
+      NEXTAUTH_URL: http://localhost:3000
+      SALT: local-salt-change-me
+    ports:
+      - "3000:3000"
+    depends_on:
+      - langfuse-db
+
+  langfuse-db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: langfuse
+      POSTGRES_USER: gacha
+      POSTGRES_PASSWORD: gacha_local
+    volumes:
+      - langfuse_data:/var/lib/postgresql/data
+
+  # ── CDC: Debezium Server ─────────────────────────────────────────────────
+  # Debezium Server (not Connect) streams Postgres WAL directly to Pub/Sub.
+  # Uses the Pub/Sub emulator via PUBSUB_EMULATOR_HOST.
+  debezium-server:
+    image: debezium/server:2.5
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./pipeline/debezium:/debezium/conf
+      - debezium_offsets:/debezium/data
+    environment:
+      PUBSUB_EMULATOR_HOST: pubsub-emulator:8085
+    depends_on:
+      - postgres
+      - pubsub-emulator
+    restart: on-failure
+
+  # ── Pub/Sub Emulator ─────────────────────────────────────────────────────
+  pubsub-emulator:
+    image: google/cloud-sdk:latest
+    command: >
+      gcloud beta emulators pubsub start
+      --host-port=0.0.0.0:8085
+      --project=gacha-local
+    ports:
+      - "8085:8085"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8085"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── BigQuery Emulator ─────────────────────────────────────────────────────
+  bigquery-emulator:
+    image: ghcr.io/goccy/bigquery-emulator:latest
+    command: --project=gacha-local --port=9050
+    ports:
+      - "9050:9050"
+
+volumes:
+  postgres_data:
+  langfuse_data:
+  debezium_offsets:

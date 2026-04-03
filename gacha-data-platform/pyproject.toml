@@ -1,0 +1,36 @@
+[project]
+name = "gacha-data-platform"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    # Generator
+    "faker",
+    "psycopg[binary]",
+    "pydantic",
+    # Pipeline
+    "apache-beam[gcp]",
+    "google-cloud-bigquery",
+    "google-auth",
+    # Medallion
+    "duckdb",
+    # UI
+    "nicegui",
+    # Chat
+    "pydantic-ai",
+    "langfuse",
+    # Portrait generation (optional)
+    "google-genai",
+    "pillow",
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "ruff",
+]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.format]
+quote-style = "double"
