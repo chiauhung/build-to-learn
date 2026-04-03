@@ -1,0 +1,414 @@
+{
+  "meta": {
+    "game": "Husbando Chronicles",
+    "version": "1.0",
+    "description": "Character seed data for gacha data platform. Inspired by otome gacha games.",
+    "portrait_spec": {
+      "format": "webp",
+      "size": "384x512",
+      "aspect_ratio": "3:4",
+      "style": "anime portrait, bust shot, clean background, otome game card art",
+      "max_file_size_kb": 100,
+      "directory": "portraits/",
+      "naming": "{id}.webp",
+      "notes": "Use WebP over PNG — 50-70% smaller at same quality. 3:4 portrait ratio matches gacha card shape. 21 portraits × ~50KB = ~1MB total, safe for git."
+    }
+  },
+  "characters": [
+    {
+      "id": "ssr-001",
+      "name": "Shen Yexiao",
+      "rarity": "SSR",
+      "archetype": "Cold CEO",
+      "element": "Ice",
+      "faction": null,
+      "banner_debut": "1.0",
+      "description": "Youngest CEO of Yexiao Group. Speaks in quarterly reports. Has never smiled in a board meeting — or anywhere else.",
+      "visual": {
+        "portrait": "portraits/ssr-001.webp",
+        "prompt_hint": "Sharp jawline, silver-white hair slicked back, steel-grey eyes, black tailored three-piece suit, cold piercing gaze, ice-blue accent lighting",
+        "generated": false
+      }
+    },
+    {
+      "id": "ssr-002",
+      "name": "Wen Junhai",
+      "rarity": "SSR",
+      "archetype": "Gentle Doctor",
+      "element": "Flora",
+      "faction": null,
+      "banner_debut": "1.0",
+      "description": "Chief surgeon who talks to his plants. Prescribes herbal tea for everything, including heartbreak.",
+      "visual": {
+        "portrait": "portraits/ssr-002.webp",
+        "prompt_hint": "Soft features, warm brown eyes, dark green hair loosely tied back, white doctor's coat over sage turtleneck, gentle smile, soft natural lighting with leaf shadows",
+        "generated": false
+      }
+    },
+    {
+      "id": "ssr-003",
+      "name": "Xiao Ling",
+      "rarity": "SSR",
+      "archetype": "Knight Commander",
+      "element": "Thunder",
+      "faction": null,
+      "banner_debut": "1.0",
+      "description": "Commander of the Vanguard Division. Sleeps in full armor. Once punched a door open because the handle was broken.",
+      "visual": {
+        "portrait": "portraits/ssr-003.webp",
+        "prompt_hint": "Strong build, jet-black hair with undercut, golden eyes, dark ornate military armor with lightning motifs, battle scar across left cheek, intense commanding stare",
+        "generated": false
+      }
+    },
+    {
+      "id": "ssr-004",
+      "name": "Rei Kurosawa",
+      "rarity": "SSR",
+      "archetype": "Mysterious Artist",
+      "element": "Shadow",
+      "faction": null,
+      "banner_debut": "1.1",
+      "description": "Reclusive painter whose exhibitions sell out in minutes. No one has seen his face — only his hands in interviews.",
+      "visual": {
+        "portrait": "portraits/ssr-004.webp",
+        "prompt_hint": "Half-face obscured by shadow, one visible deep violet eye, messy ink-black hair falling over face, paint-stained fingers, black turtleneck, moody purple-grey atmosphere",
+        "generated": false
+      }
+    },
+    {
+      "id": "ssr-005",
+      "name": "Nox",
+      "rarity": "SSR",
+      "archetype": "Chaotic Genius Hacker",
+      "element": "Volt",
+      "faction": null,
+      "banner_debut": "1.2",
+      "description": "Online handle only. Real name unknown. Once crashed a government firewall to prove a point about password hygiene.",
+      "visual": {
+        "portrait": "portraits/ssr-005.webp",
+        "prompt_hint": "Androgynous features, electric blue streaks in white messy hair, heterochromia (one neon green, one amber), oversized hoodie, glowing holographic HUD reflections on face, smirk",
+        "generated": false
+      }
+    },
+    {
+      "id": "sr-001",
+      "name": "Liu Haoyang",
+      "rarity": "SR",
+      "archetype": "Sunshine Athlete",
+      "element": "Fire",
+      "faction": null,
+      "banner_debut": "1.0",
+      "description": "National swim team hopeful. Brings protein shakes to dates. Cries at sports anime.",
+      "visual": {
+        "portrait": "portraits/sr-001.webp",
+        "prompt_hint": "Tanned skin, bright orange-brown hair, warm amber eyes, wide genuine grin, red-white athletic jacket unzipped, towel around neck, golden sunlight",
+        "generated": false
+      }
+    },
+    {
+      "id": "sr-002",
+      "name": "Kael",
+      "rarity": "SR",
+      "archetype": "Chaotic Gamer Boy",
+      "element": "Volt",
+      "faction": null,
+      "banner_debut": "1.0",
+      "description": "Twitch partner, rank 1 in three games simultaneously. Lives on energy drinks and spite.",
+      "visual": {
+        "portrait": "portraits/sr-002.webp",
+        "prompt_hint": "Pale skin, messy purple-black hair, sharp teal eyes with dark circles underneath, gaming headset around neck, black graphic tee, LED glow on face, cocky half-smile",
+        "generated": false
+      }
+    },
+    {
+      "id": "sr-003",
+      "name": "Aldric Vaughn",
+      "rarity": "SR",
+      "archetype": "Elegant Professor",
+      "element": "Wind",
+      "faction": null,
+      "banner_debut": "1.0",
+      "description": "Literature professor who quotes Byron mid-lecture. Students attend for the voice, stay for the poetry.",
+      "visual": {
+        "portrait": "portraits/sr-003.webp",
+        "prompt_hint": "Refined features, ash-blond wavy hair, deep blue eyes behind round gold-rimmed glasses, ivory dress shirt with rolled sleeves, holding a book, warm library lighting",
+        "generated": false
+      }
+    },
+    {
+      "id": "sr-004",
+      "name": "Milo Chen",
+      "rarity": "SR",
+      "archetype": "Streetwear Photographer",
+      "element": "Shadow",
+      "faction": null,
+      "banner_debut": "1.0",
+      "description": "Shoots on film only. Has 200k followers but posts once a month. Wears the same jacket in every photo.",
+      "visual": {
+        "portrait": "portraits/sr-004.webp",
+        "prompt_hint": "Sharp cheekbones, dark brown undercut hair, calm dark eyes, vintage film camera hanging from neck, oversized olive bomber jacket, urban rooftop background, golden hour",
+        "generated": false
+      }
+    },
+    {
+      "id": "sr-005",
+      "name": "Soren",
+      "rarity": "SR",
+      "archetype": "Calm Librarian",
+      "element": "Flora",
+      "faction": null,
+      "banner_debut": "1.0",
+      "description": "Runs the old district library. Knows where every book is by memory. Whispers even outside the library.",
+      "visual": {
+        "portrait": "portraits/sr-005.webp",
+        "prompt_hint": "Delicate features, long platinum hair in low ponytail, pale green eyes, cream cardigan over white collared shirt, books in background, soft diffused window light, serene expression",
+        "generated": false
+      }
+    },
+    {
+      "id": "sr-006",
+      "name": "Lucien Blanc",
+      "rarity": "SR",
+      "archetype": "Cheerful Patissier",
+      "element": "Fire",
+      "faction": null,
+      "banner_debut": "1.1",
+      "description": "French-trained pastry chef. Names every soufflé. Takes personal offense when someone doesn't finish dessert.",
+      "visual": {
+        "portrait": "portraits/sr-006.webp",
+        "prompt_hint": "Soft curly honey-blond hair, bright hazel eyes, flour dusted on cheek, white chef's coat with rolled sleeves, warm smile, warm bakery lighting with golden tones",
+        "generated": false
+      }
+    },
+    {
+      "id": "sr-007",
+      "name": "Dante Kai",
+      "rarity": "SR",
+      "archetype": "Rival Swordsman",
+      "element": "Thunder",
+      "faction": null,
+      "banner_debut": "1.1",
+      "description": "Second-best swordsman in the academy. Trains at 4am to overtake rank 1. Respectful rival energy.",
+      "visual": {
+        "portrait": "portraits/sr-007.webp",
+        "prompt_hint": "Athletic build, dark red hair tied in high ponytail, fierce amber eyes, navy kendo uniform slightly open at collar, wooden sword resting on shoulder, dawn training ground lighting",
+        "generated": false
+      }
+    },
+    {
+      "id": "sr-008",
+      "name": "Caspian Waves",
+      "rarity": "SR",
+      "archetype": "Laid-back Surfer",
+      "element": "Wind",
+      "faction": null,
+      "banner_debut": "1.2",
+      "description": "Lives in a van by the coast. Philosophizes about the ocean. Somehow always tan and never stressed.",
+      "visual": {
+        "portrait": "portraits/sr-008.webp",
+        "prompt_hint": "Deep tan, sun-bleached sandy hair, relaxed sea-green eyes, open linen shirt, shell necklace, easy lazy smile, ocean sunset background with warm orange light",
+        "generated": false
+      }
+    },
+    {
+      "id": "r-001",
+      "name": "Riku Tanaka",
+      "rarity": "R",
+      "archetype": "Tsundere Classmate",
+      "element": "Ice",
+      "faction": null,
+      "banner_debut": "1.0",
+      "description": "Sits behind you in class. Leaves notes on your desk then denies it. Ears turn red when caught.",
+      "visual": {
+        "portrait": "portraits/r-001.webp",
+        "prompt_hint": "Youthful face, neat black hair with side part, flustered dark brown eyes looking away, school uniform with loosened tie, slight blush on ears, classroom window light",
+        "generated": false
+      }
+    },
+    {
+      "id": "r-002",
+      "name": "Jay",
+      "rarity": "R",
+      "archetype": "Friendly Barista",
+      "element": "Fire",
+      "faction": null,
+      "banner_debut": "1.0",
+      "description": "Remembers your order after one visit. Does latte art of your face. Refuses tips.",
+      "visual": {
+        "portrait": "portraits/r-002.webp",
+        "prompt_hint": "Warm brown skin, short curly dark hair, friendly brown eyes, brown apron over flannel shirt, holding a latte cup, cozy café warm lighting, easygoing smile",
+        "generated": false
+      }
+    },
+    {
+      "id": "r-003",
+      "name": "Theo Park",
+      "rarity": "R",
+      "archetype": "Nerdy Lab Partner",
+      "element": "Volt",
+      "faction": null,
+      "banner_debut": "1.0",
+      "description": "Breaks three beakers per semester. Accidentally brilliant. Apologizes to lab equipment.",
+      "visual": {
+        "portrait": "portraits/r-003.webp",
+        "prompt_hint": "Round face, messy dark brown hair sticking up, wide earnest eyes behind thick square glasses, lab coat slightly too big, safety goggles pushed up on forehead, fluorescent lab lighting",
+        "generated": false
+      }
+    },
+    {
+      "id": "r-004",
+      "name": "Haruki",
+      "rarity": "R",
+      "archetype": "Childhood Friend",
+      "element": "Wind",
+      "faction": null,
+      "banner_debut": "1.0",
+      "description": "Lives next door since age 5. Still climbs through your window instead of using the front door.",
+      "visual": {
+        "portrait": "portraits/r-004.webp",
+        "prompt_hint": "Boy-next-door look, warm brown hair slightly tousled, kind dark eyes, casual hoodie and jeans, carefree grin, soft afternoon light from a bedroom window",
+        "generated": false
+      }
+    },
+    {
+      "id": "r-005",
+      "name": "Oliver Quinn",
+      "rarity": "R",
+      "archetype": "Quiet Bookshop Owner",
+      "element": "Flora",
+      "faction": null,
+      "banner_debut": "1.0",
+      "description": "Inherited the shop from his grandmother. Reads aloud to the store cat. Closes early if it rains.",
+      "visual": {
+        "portrait": "portraits/r-005.webp",
+        "prompt_hint": "Gentle face, dusty auburn hair, soft grey-green eyes, round tortoiseshell glasses, knit sweater vest over collared shirt, bookshelf background, warm lamplight, peaceful expression",
+        "generated": false
+      }
+    },
+    {
+      "id": "r-006",
+      "name": "Kohaku",
+      "rarity": "R",
+      "archetype": "Playful Fox Spirit",
+      "element": "Shadow",
+      "faction": null,
+      "banner_debut": "1.0",
+      "description": "Claims to be 300 years old. Steals your snacks and calls it a 'spiritual offering.' Tail appears when excited.",
+      "visual": {
+        "portrait": "portraits/r-006.webp",
+        "prompt_hint": "Fox ears peeking through golden-orange hair, mischievous amber-gold eyes with slit pupils, traditional kimono worn loosely, playful fanged grin, autumn leaves floating, warm mystical glow",
+        "generated": false
+      }
+    },
+    {
+      "id": "r-007",
+      "name": "Zhen Wei",
+      "rarity": "R",
+      "archetype": "Stoic Bodyguard",
+      "element": "Thunder",
+      "faction": null,
+      "banner_debut": "1.0",
+      "description": "Assigned to protect you. Takes it extremely literally. Once tackled a waiter who approached too fast.",
+      "visual": {
+        "portrait": "portraits/r-007.webp",
+        "prompt_hint": "Tall broad build, buzz-cut black hair, stern dark eyes scanning surroundings, black suit with earpiece, arms crossed, sharp jawline, overcast neutral lighting, no-nonsense expression",
+        "generated": false
+      }
+    },
+    {
+      "id": "r-008",
+      "name": "Felix",
+      "rarity": "R",
+      "archetype": "Clumsy Courier",
+      "element": "Wind",
+      "faction": null,
+      "banner_debut": "1.0",
+      "description": "Delivers your packages personally. Trips on the last step every time. Somehow nothing ever breaks.",
+      "visual": {
+        "portrait": "portraits/r-008.webp",
+        "prompt_hint": "Freckled face, messy strawberry-blond hair windswept, bright green eyes, delivery uniform slightly disheveled, bandaid on nose, sheepish grin, outdoor daylight with motion blur feel",
+        "generated": false
+      }
+    }
+  ],
+  "banners": [
+    {
+      "id": "banner-permanent",
+      "name": "Eternal Encounter",
+      "type": "permanent",
+      "version": "1.0",
+      "rate_up_ssr": null,
+      "description": "Standard banner — all characters in pool"
+    },
+    {
+      "id": "banner-limited-001",
+      "name": "Frozen Boardroom",
+      "type": "limited",
+      "version": "1.0",
+      "rate_up_ssr": "ssr-001",
+      "start_date": "2025-01-01",
+      "end_date": "2025-01-21",
+      "description": "Rate-up: Shen Yexiao"
+    },
+    {
+      "id": "banner-limited-002",
+      "name": "Healing Garden",
+      "type": "limited",
+      "version": "1.0",
+      "rate_up_ssr": "ssr-002",
+      "start_date": "2025-01-21",
+      "end_date": "2025-02-10",
+      "description": "Rate-up: Wen Junhai"
+    },
+    {
+      "id": "banner-limited-003",
+      "name": "Thunder Vanguard",
+      "type": "limited",
+      "version": "1.0",
+      "rate_up_ssr": "ssr-003",
+      "start_date": "2025-02-10",
+      "end_date": "2025-03-02",
+      "description": "Rate-up: Xiao Ling"
+    },
+    {
+      "id": "banner-limited-004",
+      "name": "Shadow Gallery",
+      "type": "limited",
+      "version": "1.1",
+      "rate_up_ssr": "ssr-004",
+      "start_date": "2025-03-02",
+      "end_date": "2025-03-22",
+      "description": "Rate-up: Rei Kurosawa"
+    },
+    {
+      "id": "banner-limited-005",
+      "name": "System Override",
+      "type": "limited",
+      "version": "1.2",
+      "rate_up_ssr": "ssr-005",
+      "start_date": "2025-03-22",
+      "end_date": "2025-04-11",
+      "description": "Rate-up: Nox"
+    }
+  ],
+  "topup_packages": [
+    {"id": "pkg-01", "name": "A Glance", "crystals": 60, "price_usd": 0.99, "first_time_bonus": 60},
+    {"id": "pkg-02", "name": "A Whisper", "crystals": 300, "price_usd": 4.99, "first_time_bonus": 300},
+    {"id": "pkg-03", "name": "A Promise", "crystals": 980, "price_usd": 14.99, "first_time_bonus": 980},
+    {"id": "pkg-04", "name": "A Devotion", "crystals": 1980, "price_usd": 29.99, "first_time_bonus": 1980},
+    {"id": "pkg-05", "name": "An Obsession", "crystals": 3280, "price_usd": 49.99, "first_time_bonus": 3280},
+    {"id": "pkg-06", "name": "Monthly Pass", "crystals": 90, "price_usd": 4.99, "first_time_bonus": 0, "daily_crystals": 90, "duration_days": 30}
+  ],
+  "gacha_config": {
+    "crystals_per_pull": 160,
+    "crystals_per_10_pull": 1600,
+    "ssr_base_rate": 0.015,
+    "ssr_soft_pity_start": 74,
+    "ssr_soft_pity_rate": 0.06,
+    "ssr_hard_pity": 90,
+    "sr_base_rate": 0.10,
+    "sr_guarantee_every": 10,
+    "r_base_rate": 0.885,
+    "fifty_fifty_rate": 0.5
+  }
+}
