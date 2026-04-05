@@ -1,6 +1,8 @@
 services:
+
+  # ── Source Database ────────────────────────────────────────────────────────
   postgres:
-    image: postgres:16
+    image: postgres:18
     environment:
       POSTGRES_DB: husbando_chronicles
       POSTGRES_USER: gacha
@@ -8,41 +10,79 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
       - ./seed/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
     command:
       - "postgres"
       - "-c"
-      - "wal_level=logical"           # Enable logical replication for CDC
+      - "wal_level=logical"
       - "-c"
       - "max_replication_slots=4"
       - "-c"
       - "max_wal_senders=4"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gacha -d husbando_chronicles"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
-  langfuse:
-    image: langfuse/langfuse:latest
-    environment:
-      DATABASE_URL: postgresql://gacha:gacha_local@langfuse-db:5432/langfuse
-      NEXTAUTH_SECRET: local-secret-change-me
-      NEXTAUTH_URL: http://localhost:3000
-      SALT: local-salt-change-me
+  # ── Pub/Sub Emulator ───────────────────────────────────────────────────────
+  pubsub-emulator:
+    image: google/cloud-sdk:latest
+    command: >
+      gcloud beta emulators pubsub start
+      --host-port=0.0.0.0:8085
+      --project=gacha-local
     ports:
-      - "3000:3000"
-    depends_on:
-      - langfuse-db
+      - "8085:8085"
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8085"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
-  langfuse-db:
-    image: postgres:16
-    environment:
-      POSTGRES_DB: langfuse
-      POSTGRES_USER: gacha
-      POSTGRES_PASSWORD: gacha_local
+  # ── Pub/Sub Init (topics + subscriptions) ──────────────────────────────────
+  pubsub-init:
+    image: curlimages/curl:latest
     volumes:
-      - langfuse_data:/var/lib/postgresql/data
+      - ./scripts/init-pubsub.sh:/init-pubsub.sh
+    entrypoint: ["/bin/sh", "/init-pubsub.sh"]
+    environment:
+      PUBSUB_EMULATOR_HOST: pubsub-emulator:8085
+    depends_on:
+      pubsub-emulator:
+        condition: service_healthy
 
-  # ── CDC: Debezium Server ─────────────────────────────────────────────────
-  # Debezium Server (not Connect) streams Postgres WAL directly to Pub/Sub.
-  # Uses the Pub/Sub emulator via PUBSUB_EMULATOR_HOST.
+  # ── BigQuery Emulator ──────────────────────────────────────────────────────
+  bigquery-emulator:
+    image: ghcr.io/goccy/bigquery-emulator:latest
+    command: --project=gacha-local --port=9050
+    ports:
+      - "9050:9050"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9050/bigquery/v2/projects/gacha-local/datasets || exit 0"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  # ── BigQuery Init (datasets + tables) ──────────────────────────────────────
+  bigquery-init:
+    image: python:3.11-slim
+    working_dir: /app
+    volumes:
+      - ./scripts/init-bigquery.py:/app/init-bigquery.py
+    command: >
+      sh -c "pip install -q google-cloud-bigquery google-auth && python init-bigquery.py"
+    environment:
+      BIGQUERY_EMULATOR_HOST: http://bigquery-emulator:9050
+    depends_on:
+      bigquery-emulator:
+        condition: service_healthy
+
+  # ── CDC: Debezium Server ───────────────────────────────────────────────────
+  # Streams Postgres WAL → Pub/Sub emulator.
+  # Publishes to per-table topics: gacha.public.pulls, gacha.public.transactions, etc.
   debezium-server:
     image: debezium/server:2.5
     ports:
@@ -53,33 +93,28 @@ services:
     environment:
       PUBSUB_EMULATOR_HOST: pubsub-emulator:8085
     depends_on:
-      - postgres
-      - pubsub-emulator
-    restart: on-failure
+      postgres:
+        condition: service_healthy
+      pubsub-init:
+        condition: service_completed_successfully
 
-  # ── Pub/Sub Emulator ─────────────────────────────────────────────────────
-  pubsub-emulator:
-    image: google/cloud-sdk:latest
-    command: >
-      gcloud beta emulators pubsub start
-      --host-port=0.0.0.0:8085
-      --project=gacha-local
+  # ── Observability: Langfuse ────────────────────────────────────────────────
+  # Langfuse is only needed for the chat/LLM layer (not built yet).
+  # When ready, run with: docker compose --profile observability up
+  langfuse:
+    image: langfuse/langfuse:latest
+    profiles: ["observability"]
+    environment:
+      DATABASE_URL: postgresql://gacha:gacha_local@postgres:5432/langfuse
+      NEXTAUTH_SECRET: local-secret-change-me
+      NEXTAUTH_URL: http://localhost:3000
+      SALT: local-salt-change-me
     ports:
-      - "8085:8085"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8085"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  # ── BigQuery Emulator ─────────────────────────────────────────────────────
-  bigquery-emulator:
-    image: ghcr.io/goccy/bigquery-emulator:latest
-    command: --project=gacha-local --port=9050
-    ports:
-      - "9050:9050"
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
 
 volumes:
   postgres_data:
-  langfuse_data:
   debezium_offsets:

@@ -1,0 +1,15 @@
+# DuckDB warehouse (generated, not committed)
+data/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# dbt
+medallion/target/
+medallion/dbt_packages/
+medallion/logs/
+
+# uv
+uv.lock

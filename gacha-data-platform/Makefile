@@ -1,8 +1,14 @@
-.PHONY: up down seed generate query ui reset
+.PHONY: up down seed seed-small pipeline ui chat reset logs status init-bq
 
 # --- Docker ---
 up:
 	docker compose up -d
+	@echo ""
+	@echo "Waiting for init containers to finish..."
+	@docker compose wait pubsub-init bigquery-init 2>/dev/null || true
+	@echo ""
+	@echo "Services ready. Run 'make init-bq' if BigQuery tables need re-creating."
+	@echo "Next: 'make seed-small' to generate data, then 'make pipeline' to start CDC."
 
 down:
 	docker compose down
@@ -11,20 +17,50 @@ reset:
 	docker compose down -v
 	docker compose up -d
 
+logs:
+	docker compose logs -f
+
+status:
+	docker compose ps
+
+# --- BigQuery Init (run manually if needed) ---
+init-bq:
+	BIGQUERY_EMULATOR_HOST=http://localhost:9050 uv run python scripts/init-bigquery.py
+
 # --- Data ---
 seed:
 	uv run python -m generator.bulk_seed --players 1000 --pulls 500000
 
 seed-small:
-	uv run python -m generator.bulk_seed --players 100 --pulls 50000
+	uv run python -m generator.bulk_seed --players 50 --pulls 10000
 
-# --- Pipeline ---
+# --- Pipeline (Beam DirectRunner, streaming) ---
+# This is a long-running streaming process. Run in a separate terminal.
+# Ctrl+C to stop. Logs every 100 records.
 pipeline:
-	uv run python -m pipeline.core
+	@echo "Starting CDC pipeline (streaming mode, Ctrl+C to stop)..."
+	PUBSUB_EMULATOR_HOST=localhost:8085 \
+	uv run python -m pipeline.core \
+		--runner DirectRunner \
+		--project_id gacha-local \
+		--input_subscription projects/gacha-local/subscriptions/cdc-sub \
+		--dlq_topic projects/gacha-local/topics/cdc-dlq \
+		--merge_window_minutes 2 \
+		--bigquery_endpoint http://localhost:9050 \
+		--streaming
 
-# --- Medallion ---
-medallion:
-	uv run python -m medallion.run
+# --- Medallion (dbt) ---
+dbt-run:
+	cd medallion && uv run dbt run --profiles-dir .
+
+dbt-test:
+	cd medallion && uv run dbt test --profiles-dir .
+
+dbt-seed:
+	cd medallion && uv run dbt seed --profiles-dir .
+
+dbt-all:
+	cd medallion && uv run dbt seed --profiles-dir . && uv run dbt run --profiles-dir . && uv run dbt test --profiles-dir .
 
 # --- UI ---
 ui:
