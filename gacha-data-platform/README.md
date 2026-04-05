@@ -50,11 +50,11 @@ make seed-small          # or: make seed (1000 players, 500k pulls)
 # 3. Start CDC pipeline (separate terminal — long-running)
 make pipeline            # Ctrl+C to stop
 
-# 4. Stop pipeline, then transform Bronze → Silver → Gold
-make dbt-all             # run + test
+# 4. Stop pipeline, then validate Bronze landed correctly
+make reconcile           # Postgres vs DuckDB row/ID reconciliation
 
-# 5. Validate: Postgres vs DuckDB reconciliation
-make reconcile
+# 5. Transform Bronze → Silver → Gold
+make dbt-all             # run + test
 ```
 
 No GCP account needed. Everything runs locally via Docker + DuckDB.

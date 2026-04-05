@@ -13,8 +13,8 @@ parsed as (
         json_extract_string(data, '$.type')                                     as type,
         json_extract_string(data, '$.version')                                  as version,
         json_extract_string(data, '$.rate_up_ssr_id')                           as rate_up_ssr_id,
-        cast(json_extract_string(data, '$.start_date') as date)                 as start_date,
-        cast(json_extract_string(data, '$.end_date') as date)                   as end_date,
+        date '1970-01-01' + cast(json_extract_string(data, '$.start_date') as integer) as start_date,
+        date '1970-01-01' + cast(json_extract_string(data, '$.end_date') as integer)   as end_date,
         ingested_at,
         row_number() over (
             partition by json_extract_string(data, '$.id')
