@@ -53,33 +53,6 @@ services:
       pubsub-emulator:
         condition: service_healthy
 
-  # ── BigQuery Emulator ──────────────────────────────────────────────────────
-  bigquery-emulator:
-    image: ghcr.io/goccy/bigquery-emulator:latest
-    command: --project=gacha-local --port=9050
-    ports:
-      - "9050:9050"
-    healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:9050/bigquery/v2/projects/gacha-local/datasets || exit 0"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-      start_period: 5s
-
-  # ── BigQuery Init (datasets + tables) ──────────────────────────────────────
-  bigquery-init:
-    image: python:3.11-slim
-    working_dir: /app
-    volumes:
-      - ./scripts/init-bigquery.py:/app/init-bigquery.py
-    command: >
-      sh -c "pip install -q google-cloud-bigquery google-auth && python init-bigquery.py"
-    environment:
-      BIGQUERY_EMULATOR_HOST: http://bigquery-emulator:9050
-    depends_on:
-      bigquery-emulator:
-        condition: service_healthy
-
   # ── CDC: Debezium Server ───────────────────────────────────────────────────
   # Streams Postgres WAL → Pub/Sub emulator.
   # Publishes to per-table topics: gacha.public.pulls, gacha.public.transactions, etc.

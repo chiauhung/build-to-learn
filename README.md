@@ -30,6 +30,14 @@ Two projects exploring Pydantic AI from different angles:
 
 ---
 
+### [Gacha Data Platform](./gacha-data-platform/)
+
+End-to-end data platform built around a husbando gacha game. CDC streaming from PostgreSQL through Debezium → Pub/Sub → Apache Beam into a DuckDB/BigQuery warehouse, then dbt transforms raw events into a Kimball star schema (Bronze → Silver → Gold). Full Docker Compose stack — no cloud account needed.
+
+`Python` · `Apache Beam` · `Debezium` · `PostgreSQL` · `DuckDB` · `BigQuery` · `Pub/Sub` · `dbt` · `Docker`
+
+---
+
 ### [Kimball Data Warehouse](./kimball-practice/)
 
 Implements the retail sales example from *The Data Warehouse Toolkit* (Kimball) from scratch — star schema design, SCD Type 2 dimensions, and an Apache Beam ETL pipeline that takes messy staging data to a clean fact table.

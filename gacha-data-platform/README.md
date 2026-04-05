@@ -8,13 +8,13 @@ Not a game. It's the **data infrastructure behind one.**
 
 ## What This Showcases
 
-- **CDC Streaming:** PostgreSQL → Pub/Sub → BigQuery (Apache Beam)
-- **Medallion Architecture:** Bronze (raw) → Silver (cleaned) → Gold (star schema, Kimball)
-- **Data Quality:** Pity counter validation, duplicate detection, expired banner checks
-- **IaC:** Pulumi (Python) for GCP deployment, GitHub Actions CI/CD
-- **LLM Query Layer:** Natural language queries over gacha analytics (Pydantic AI)
-- **Observability:** Langfuse tracing on LLM queries
-- **UI:** NiceGUI web interface — pull for husbandos, see analytics, chat with your data
+- **CDC Streaming:** PostgreSQL → Debezium → Pub/Sub → Apache Beam → DuckDB/BigQuery
+- **Medallion Architecture:** Bronze (raw CDC) → Silver (deduped, typed) → Gold (star schema)
+- **Kimball Star Schema:** Facts + dimensions modeled in dbt with 58 tests
+- **Local-first:** Full stack runs on Docker Compose — no cloud account needed
+- **Dual warehouse:** DuckDB for local dev, BigQuery for GCP (same dbt models, different profiles)
+- **LLM Query Layer:** Natural language queries over gacha analytics (planned — Pydantic AI)
+- **UI:** NiceGUI web interface (planned)
 
 ---
 
@@ -39,43 +39,58 @@ Two data streams:
 ## Quick Start
 
 ```bash
-# Prerequisites: Docker, uv
+# Prerequisites: Docker, uv (Python package manager)
 
-# 1. Start infrastructure (Postgres + Langfuse)
+# 1. Start infrastructure (Postgres, Pub/Sub emulator, Debezium CDC)
 make up
 
-# 2. Seed data (1000 players, 500k pulls)
-make seed
+# 2. Seed source data (50 players, ~10k pulls + transactions)
+make seed-small          # or: make seed (1000 players, 500k pulls)
 
-# 3. Run pipeline (CDC → Bronze → Silver → Gold)
-make pipeline
+# 3. Start CDC pipeline (separate terminal — long-running)
+make pipeline            # Ctrl+C to stop
 
-# 4. Launch UI (pull husbandos + analytics + chat)
-make ui
+# 4. Stop pipeline, then transform Bronze → Silver → Gold
+make dbt-all             # seeds + run + test (58 tests)
+
+# 5. Validate: Postgres vs DuckDB reconciliation
+make reconcile
 ```
 
-No GCP account needed. Everything runs locally.
+No GCP account needed. Everything runs locally via Docker + DuckDB.
+
+> **Note:** DuckDB is single-writer — stop the pipeline (`Ctrl+C`) before running dbt or reconcile.
 
 ---
 
 ## Architecture
 
 ```
-seed/characters.json
-  │
-  ▼
-Data Generator (Faker + gacha logic)
-  │  Writes to PostgreSQL
-  ▼                              ┌──────────────┐
-CDC (Postgres logical replication)│  NiceGUI     │
-  ▼                              │  [Pull!]     │──→ Postgres (writes)
-Apache Beam (DirectRunner)       │  [Top Up]    │
-  │                              │  [Seed 100]  │
-  ▼                              │              │
-Bronze → Silver → Gold           │  Analytics ◄─┼──→ Gold layer (reads)
-  │                              │  Chat     ◄──┼──→ Pydantic AI + Langfuse
-  ▼                              └──────────────┘
-DuckDB (local) / BigQuery (GCP)
+seed/characters.json ──→ PostgreSQL (source of truth)
+                              │
+                    Debezium CDC (logical replication)
+                              │
+                         Pub/Sub (events)
+                              │
+                    Apache Beam (DirectRunner)
+                              │
+                    DuckDB Bronze (raw CDC events)
+                              │
+                    dbt (Bronze → Silver → Gold)
+                              │
+                    ┌─────────┴─────────┐
+                    │   Star Schema     │
+                    │  fact_pulls       │
+                    │  fact_transactions│
+                    │  dim_players      │
+                    │  dim_characters   │
+                    │  dim_banners      │
+                    │  agg_player_spend │
+                    └───────────────────┘
+                              │
+               ┌──────────────┼──────────────┐
+            NiceGUI        Dashboard     Pydantic AI
+            (planned)      (planned)     Chat (planned)
 ```
 
 ---
@@ -89,14 +104,20 @@ gacha-data-platform/
 │   ├── schema.sql           ← PostgreSQL source schema
 │   └── portraits/           ← AI-generated character art (WebP, 3:4)
 ├── generator/               ← Data generator (Faker + gacha logic)
-├── pipeline/                ← Simplified Apache Beam CDC pipeline
-├── medallion/               ← Bronze → Silver → Gold transformations
-├── chat/                    ← Pydantic AI agent + Langfuse tracing
-├── ui/                      ← NiceGUI web interface
-├── infra/                   ← Pulumi (GCP deployment)
-├── .github/workflows/       ← CI/CD (GitHub Actions)
-├── docker-compose.yml       ← Local: Postgres + Langfuse
-├── Makefile                 ← make up / seed / pipeline / ui
+├── pipeline/                ← Apache Beam CDC pipeline (Bronze writes)
+│   ├── warehouse.py         ← DuckDB (local) / BigQuery (GCP) abstraction
+│   └── debezium/            ← Debezium Server config
+├── medallion/               ← dbt project (Bronze → Silver → Gold)
+│   ├── models/staging/      ← 5 staging models (dedup + type-cast)
+│   ├── models/marts/        ← 6 mart models (Kimball star schema)
+│   └── seeds/               ← characters.csv, banners.csv
+├── scripts/                 ← Init scripts + data reconciliation
+├── tests/                   ← 34 tests (gacha math + pipeline transforms)
+├── chat/                    ← Pydantic AI agent + Langfuse (planned)
+├── ui/                      ← NiceGUI web interface (planned)
+├── infra/                   ← Pulumi GCP deployment (planned)
+├── docker-compose.yml       ← Postgres, Pub/Sub emulator, Debezium
+├── Makefile                 ← make up / seed / pipeline / dbt-all / reconcile
 └── pyproject.toml           ← uv managed dependencies
 ```
 
@@ -115,4 +136,4 @@ gacha-data-platform/
 
 ---
 
-`Python` · `Apache Beam` · `PostgreSQL` · `DuckDB` · `BigQuery` · `Pub/Sub` · `Pulumi` · `Pydantic AI` · `NiceGUI` · `Langfuse` · `Docker` · `uv`
+`Python` · `Apache Beam` · `Debezium` · `PostgreSQL` · `DuckDB` · `BigQuery` · `Pub/Sub` · `dbt` · `Docker` · `uv`

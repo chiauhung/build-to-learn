@@ -1,13 +1,13 @@
-.PHONY: up down seed seed-small pipeline ui chat reset logs status init-bq
+.PHONY: up down seed seed-small pipeline ui chat reset logs status
 
 # --- Docker ---
 up:
 	docker compose up -d
 	@echo ""
 	@echo "Waiting for init containers to finish..."
-	@docker compose wait pubsub-init bigquery-init 2>/dev/null || true
+	@docker compose wait pubsub-init 2>/dev/null || true
 	@echo ""
-	@echo "Services ready. Run 'make init-bq' if BigQuery tables need re-creating."
+	@echo "Services ready."
 	@echo "Next: 'make seed-small' to generate data, then 'make pipeline' to start CDC."
 
 down:
@@ -22,10 +22,6 @@ logs:
 
 status:
 	docker compose ps
-
-# --- BigQuery Init (run manually if needed) ---
-init-bq:
-	BIGQUERY_EMULATOR_HOST=http://localhost:9050 uv run python scripts/init-bigquery.py
 
 # --- Data ---
 seed:
@@ -50,6 +46,9 @@ pipeline:
 		--streaming
 
 # --- Medallion (dbt) ---
+# NOTE: DuckDB allows only one writer process at a time.
+# Stop the pipeline (Ctrl+C) before running dbt.
+# In production (BigQuery), this limitation doesn't apply.
 dbt-run:
 	cd medallion && uv run dbt run --profiles-dir .
 
@@ -69,6 +68,10 @@ ui:
 # --- Chat (standalone) ---
 chat:
 	uv run python -m chat.agent
+
+# --- Reconciliation ---
+reconcile:
+	uv run python scripts/reconcile.py
 
 # --- Lint / Test ---
 lint:
