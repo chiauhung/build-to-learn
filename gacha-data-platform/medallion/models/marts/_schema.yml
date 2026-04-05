@@ -1,0 +1,116 @@
+version: 2
+
+models:
+  - name: fact_pulls
+    description: "Grain: one row per gacha pull. Enriched with player region from dim_players."
+    columns:
+      - name: pull_id
+        description: "Pull UUID (from stg_pulls)"
+        tests:
+          - unique
+          - not_null
+      - name: player_id
+        tests:
+          - not_null
+      - name: character_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_characters')
+                field: character_id
+      - name: rarity
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['SSR', 'SR', 'R']
+      - name: pulled_at
+        tests:
+          - not_null
+
+  - name: fact_transactions
+    description: "Grain: one row per player purchase/top-up transaction."
+    columns:
+      - name: transaction_id
+        description: "Transaction UUID (from stg_transactions)"
+        tests:
+          - unique
+          - not_null
+      - name: player_id
+        tests:
+          - not_null
+      - name: payment_status
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['success', 'failed', 'refunded', 'pending']
+      - name: transacted_at
+        tests:
+          - not_null
+
+  - name: dim_players
+    description: "Player dimension — current state, one row per player."
+    columns:
+      - name: player_id
+        description: "Player UUID"
+        tests:
+          - unique
+          - not_null
+      - name: username
+        tests:
+          - not_null
+      - name: region
+        tests:
+          - not_null
+
+  - name: dim_characters
+    description: "Character reference data from seed. One row per character."
+    columns:
+      - name: character_id
+        description: "Character ID (e.g. ssr-001)"
+        tests:
+          - unique
+          - not_null
+      - name: rarity
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['SSR', 'SR', 'R']
+      - name: name
+        tests:
+          - not_null
+
+  - name: dim_banners
+    description: "Banner reference data from seed. One row per banner."
+    columns:
+      - name: banner_id
+        description: "Banner ID (e.g. banner-permanent, banner-limited-001)"
+        tests:
+          - unique
+          - not_null
+      - name: name
+        tests:
+          - not_null
+      - name: type
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['permanent', 'limited']
+
+  - name: agg_player_spending
+    description: "Aggregated spend and pull stats per player. One row per player."
+    columns:
+      - name: player_id
+        tests:
+          - unique
+          - not_null
+      - name: total_pulls
+        tests:
+          - not_null
+      - name: total_crystals_spent
+        tests:
+          - not_null

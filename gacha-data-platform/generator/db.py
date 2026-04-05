@@ -12,6 +12,59 @@ import psycopg
 from generator.models import InventoryEntry, Player, PlayerPity, Pull, Transaction
 
 # ---------------------------------------------------------------------------
+# Seed data (dimension tables)
+# ---------------------------------------------------------------------------
+
+
+def seed_characters(conn: psycopg.Connection, characters: list[dict]) -> None:
+    """Insert character seed data. Skips on conflict."""
+    sql = """
+        INSERT INTO characters (id, name, rarity, archetype, element, faction, banner_debut, description, portrait)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        ON CONFLICT (id) DO NOTHING
+    """
+    rows = [
+        (c["id"], c["name"], c["rarity"], c["archetype"], c["element"],
+         c.get("faction"), c["banner_debut"], c.get("description"),
+         c.get("visual", {}).get("portrait"))
+        for c in characters
+    ]
+    with conn.cursor() as cur:
+        cur.executemany(sql, rows)
+
+
+def seed_banners(conn: psycopg.Connection, banners: list[dict]) -> None:
+    """Insert banner seed data. Skips on conflict."""
+    sql = """
+        INSERT INTO banners (id, name, type, version, rate_up_ssr_id, start_date, end_date)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
+        ON CONFLICT (id) DO NOTHING
+    """
+    rows = [
+        (b["id"], b["name"], b["type"], b["version"],
+         b.get("rate_up_ssr"), b.get("start_date"), b.get("end_date"))
+        for b in banners
+    ]
+    with conn.cursor() as cur:
+        cur.executemany(sql, rows)
+
+
+def seed_topup_packages(conn: psycopg.Connection, packages: list[dict]) -> None:
+    """Insert top-up package seed data. Skips on conflict."""
+    sql = """
+        INSERT INTO topup_packages (id, name, crystals, price_usd, first_time_bonus, daily_crystals, duration_days)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
+        ON CONFLICT (id) DO NOTHING
+    """
+    rows = [
+        (p["id"], p["name"], p["crystals"], p["price_usd"],
+         p.get("first_time_bonus", 0), p.get("daily_crystals"), p.get("duration_days"))
+        for p in packages
+    ]
+    with conn.cursor() as cur:
+        cur.executemany(sql, rows)
+
+# ---------------------------------------------------------------------------
 # Connection
 # ---------------------------------------------------------------------------
 

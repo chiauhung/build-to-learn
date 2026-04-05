@@ -1,0 +1,27 @@
+version: 2
+
+seeds:
+  - name: characters
+    description: "Character reference data — 21 characters across SSR/SR/R rarities."
+    config:
+      schema: gold
+      column_types:
+        character_id: varchar
+        name: varchar
+        rarity: varchar
+        archetype: varchar
+        element: varchar
+        banner_debut: varchar
+
+  - name: banners
+    description: "Banner reference data — 1 permanent and 5 limited banners."
+    config:
+      schema: gold
+      column_types:
+        banner_id: varchar
+        name: varchar
+        type: varchar
+        version: varchar
+        rate_up_ssr_id: varchar
+        start_date: date
+        end_date: date

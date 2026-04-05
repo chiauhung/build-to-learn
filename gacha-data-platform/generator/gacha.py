@@ -45,6 +45,11 @@ def load_gacha_config() -> dict:
     return _load_seed()["gacha_config"]
 
 
+def load_topup_packages() -> list[dict]:
+    """Return the top-up packages from seed data."""
+    return _load_seed()["topup_packages"]
+
+
 # ---------------------------------------------------------------------------
 # Rate calculation
 # ---------------------------------------------------------------------------

@@ -1,0 +1,68 @@
+version: 2
+
+sources:
+  - name: bronze
+    schema: bronze
+    description: "Raw CDC data ingested from Postgres via Debezium/pipeline. All tables share the same envelope schema with a JSON data field."
+    tables:
+      - name: pulls
+        description: "CDC events for gacha pull records."
+        columns:
+          - name: id
+            description: "CDC envelope ID (VARCHAR)"
+          - name: data
+            description: "JSON string of the source Postgres row"
+          - name: event
+            description: "CDC event type: insert, update, delete"
+          - name: event_timestamp
+            description: "When the event occurred in Postgres"
+          - name: source_table
+            description: "Source Postgres table name"
+          - name: source_schema
+            description: "Source Postgres schema name"
+          - name: ingested_at
+            description: "When the row was written to DuckDB bronze"
+
+      - name: transactions
+        description: "CDC events for player top-up/purchase transactions."
+        columns:
+          - name: id
+          - name: data
+          - name: event
+          - name: event_timestamp
+          - name: source_table
+          - name: source_schema
+          - name: ingested_at
+
+      - name: players
+        description: "CDC events for player account records."
+        columns:
+          - name: id
+          - name: data
+          - name: event
+          - name: event_timestamp
+          - name: source_table
+          - name: source_schema
+          - name: ingested_at
+
+      - name: player_pity
+        description: "CDC events for per-player, per-banner pity counters."
+        columns:
+          - name: id
+          - name: data
+          - name: event
+          - name: event_timestamp
+          - name: source_table
+          - name: source_schema
+          - name: ingested_at
+
+      - name: player_inventory
+        description: "CDC events for player character inventory."
+        columns:
+          - name: id
+          - name: data
+          - name: event
+          - name: event_timestamp
+          - name: source_table
+          - name: source_schema
+          - name: ingested_at

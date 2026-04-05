@@ -25,9 +25,12 @@ from generator.db import (
     insert_players,
     insert_pulls,
     insert_transactions,
+    seed_banners,
+    seed_characters,
+    seed_topup_packages,
 )
 from generator.economy import PACKAGES, create_transaction, crystals_for_purchase
-from generator.gacha import load_banners, load_characters, load_gacha_config, perform_multi_pull
+from generator.gacha import load_banners, load_characters, load_gacha_config, load_topup_packages, perform_multi_pull
 from generator.models import InventoryEntry, Player, PlayerPity, Pull, Transaction
 from generator.players import generate_players
 
@@ -265,8 +268,19 @@ def run_seed(num_players: int, target_pulls: int) -> None:
     print(f"  Inventory:    {len(inventory)} entries")
     print(f"\nConnecting to database...")
 
+    packages = load_topup_packages()
+
     conn = get_connection()
     try:
+        # Seed dimension tables first (characters, banners, packages).
+        print("  Seeding characters...")
+        seed_characters(conn, characters)
+        print("  Seeding banners...")
+        seed_banners(conn, banners)
+        print("  Seeding top-up packages...")
+        seed_topup_packages(conn, packages)
+        conn.commit()
+
         # Insert in dependency order: players first, then facts.
         print("  Inserting players...")
         insert_players(conn, players)

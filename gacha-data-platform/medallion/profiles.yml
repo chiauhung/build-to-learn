@@ -1,0 +1,18 @@
+gacha:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: ../data/warehouse.duckdb
+      threads: 4
+
+    prod:
+      type: bigquery
+      method: oauth
+      project: gacha-prod
+      dataset: silver
+      threads: 4
+      timeout_seconds: 300
+      location: US
+      # Gold models override schema per model config
+      # BigQuery: schemas map to datasets

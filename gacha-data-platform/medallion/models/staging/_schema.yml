@@ -1,0 +1,95 @@
+version: 2
+
+models:
+  - name: stg_pulls
+    description: "Deduplicated, type-cast pull events from bronze. One row per pull ID, latest state."
+    columns:
+      - name: id
+        description: "Pull UUID from Postgres"
+        tests:
+          - unique
+          - not_null
+      - name: player_id
+        tests:
+          - not_null
+      - name: banner_id
+        tests:
+          - not_null
+      - name: character_id
+        tests:
+          - not_null
+      - name: rarity
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['SSR', 'SR', 'R']
+      - name: pulled_at
+        tests:
+          - not_null
+
+  - name: stg_transactions
+    description: "Deduplicated, type-cast transaction events from bronze. One row per transaction ID, latest state."
+    columns:
+      - name: id
+        description: "Transaction UUID from Postgres"
+        tests:
+          - unique
+          - not_null
+      - name: player_id
+        tests:
+          - not_null
+      - name: payment_status
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['success', 'failed', 'refunded', 'pending']
+      - name: transacted_at
+        tests:
+          - not_null
+
+  - name: stg_players
+    description: "Deduplicated, type-cast player records from bronze. One row per player ID, latest state."
+    columns:
+      - name: id
+        description: "Player UUID from Postgres"
+        tests:
+          - unique
+          - not_null
+      - name: username
+        tests:
+          - not_null
+      - name: region
+        tests:
+          - not_null
+
+  - name: stg_player_pity
+    description: "Deduplicated pity counters per player per banner type. Synthetic ID: player_id:banner_type."
+    columns:
+      - name: id
+        description: "Synthetic key: player_id:banner_type"
+        tests:
+          - unique
+          - not_null
+      - name: player_id
+        tests:
+          - not_null
+      - name: banner_type
+        tests:
+          - not_null
+
+  - name: stg_player_inventory
+    description: "Deduplicated player character inventory. Synthetic ID: player_id:character_id."
+    columns:
+      - name: id
+        description: "Synthetic key: player_id:character_id"
+        tests:
+          - unique
+          - not_null
+      - name: player_id
+        tests:
+          - not_null
+      - name: character_id
+        tests:
+          - not_null
