@@ -26,7 +26,7 @@ class GachaOptions(PipelineOptions):
         parser.add_argument(
             "--merge_window_minutes",
             type=int,
-            default=5,
+            default=2,
             help="How often (minutes) to trigger the windowed Silver merge.",
         )
         parser.add_argument(

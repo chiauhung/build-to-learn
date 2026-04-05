@@ -13,6 +13,7 @@ dependencies = [
     "google-auth",
     # Medallion
     "duckdb",
+    "dbt-duckdb>=1.8.0",
     # UI
     "nicegui",
     # Chat
