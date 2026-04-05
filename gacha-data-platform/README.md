@@ -65,32 +65,32 @@ No GCP account needed. Everything runs locally via Docker + DuckDB.
 
 ## Architecture
 
-```
-seed/characters.json ──→ PostgreSQL (source of truth)
-                              │
-                    Debezium CDC (logical replication)
-                              │
-                         Pub/Sub (events)
-                              │
-                    Apache Beam (DirectRunner)
-                              │
-                    DuckDB Bronze (raw CDC events)
-                              │
-                    dbt (Bronze → Silver → Gold)
-                              │
-                    ┌─────────┴─────────┐
-                    │   Star Schema     │
-                    │  fact_pulls       │
-                    │  fact_transactions│
-                    │  dim_players      │
-                    │  dim_characters   │
-                    │  dim_banners      │
-                    │  agg_player_spend │
-                    └───────────────────┘
-                              │
-               ┌──────────────┼──────────────┐
-            NiceGUI        Dashboard     Pydantic AI
-            (planned)      (planned)     Chat (planned)
+```mermaid
+graph TD
+    A[seed/characters.json] --> B[PostgreSQL]
+    B --> C[Debezium CDC]
+    C --> D[Pub/Sub]
+    D --> E[Apache Beam]
+    E --> F[DuckDB Bronze]
+    F --> G[dbt]
+    G --> H[Silver — deduped, typed]
+    G --> I[Gold — Star Schema]
+    I --> J(fact_pulls)
+    I --> K(fact_transactions)
+    I --> L(dim_players)
+    I --> M(dim_characters)
+    I --> N(dim_banners)
+    I --> O(agg_player_spending)
+
+    I --> P[NiceGUI — planned]
+    I --> Q[Dashboard — planned]
+    I --> R[Pydantic AI Chat — planned]
+
+    style A fill:#f9f,stroke:#333
+    style B fill:#336,stroke:#333,color:#fff
+    style F fill:#c96,stroke:#333
+    style H fill:#9c6,stroke:#333
+    style I fill:#fc6,stroke:#333
 ```
 
 ---
