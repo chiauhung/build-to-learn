@@ -93,3 +93,39 @@ models:
       - name: character_id
         tests:
           - not_null
+
+  - name: stg_characters
+    description: "Deduplicated character reference data from Bronze CDC. One row per character ID."
+    columns:
+      - name: id
+        description: "Character ID (e.g. ssr-001)"
+        tests:
+          - unique
+          - not_null
+      - name: name
+        tests:
+          - not_null
+      - name: rarity
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['SSR', 'SR', 'R']
+
+  - name: stg_banners
+    description: "Deduplicated banner reference data from Bronze CDC. One row per banner ID."
+    columns:
+      - name: id
+        description: "Banner ID (e.g. banner-limited-001)"
+        tests:
+          - unique
+          - not_null
+      - name: name
+        tests:
+          - not_null
+      - name: type
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['permanent', 'limited']

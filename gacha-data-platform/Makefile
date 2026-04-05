@@ -59,7 +59,7 @@ dbt-seed:
 	cd medallion && uv run dbt seed --profiles-dir .
 
 dbt-all:
-	cd medallion && uv run dbt seed --profiles-dir . && uv run dbt run --profiles-dir . && uv run dbt test --profiles-dir .
+	cd medallion && uv run dbt run --profiles-dir . && uv run dbt test --profiles-dir .
 
 # --- UI ---
 ui:

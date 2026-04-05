@@ -51,7 +51,7 @@ make seed-small          # or: make seed (1000 players, 500k pulls)
 make pipeline            # Ctrl+C to stop
 
 # 4. Stop pipeline, then transform Bronze → Silver → Gold
-make dbt-all             # seeds + run + test (58 tests)
+make dbt-all             # run + test
 
 # 5. Validate: Postgres vs DuckDB reconciliation
 make reconcile
@@ -108,9 +108,8 @@ gacha-data-platform/
 │   ├── warehouse.py         ← DuckDB (local) / BigQuery (GCP) abstraction
 │   └── debezium/            ← Debezium Server config
 ├── medallion/               ← dbt project (Bronze → Silver → Gold)
-│   ├── models/staging/      ← 5 staging models (dedup + type-cast)
-│   ├── models/marts/        ← 6 mart models (Kimball star schema)
-│   └── seeds/               ← characters.csv, banners.csv
+│   ├── models/staging/      ← 7 staging models (dedup + type-cast)
+│   └── models/marts/        ← 6 mart models (Kimball star schema)
 ├── scripts/                 ← Init scripts + data reconciliation
 ├── tests/                   ← 34 tests (gacha math + pipeline transforms)
 ├── chat/                    ← Pydantic AI agent + Langfuse (planned)

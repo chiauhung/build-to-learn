@@ -22,7 +22,7 @@ PG_CONNINFO = (
     "host=localhost port=5432 dbname=husbando_chronicles user=gacha password=gacha_local"
 )
 
-TABLES = ["pulls", "transactions", "players", "player_pity", "player_inventory"]
+TABLES = ["pulls", "transactions", "players", "player_pity", "player_inventory", "characters", "banners"]
 
 
 def pg_count(cur, table: str) -> int:
@@ -72,6 +72,8 @@ SILVER_NAME = {
     "players": "stg_players",
     "player_pity": "stg_player_pity",
     "player_inventory": "stg_player_inventory",
+    "characters": "stg_characters",
+    "banners": "stg_banners",
 }
 
 # ---------------------------------------------------------------------------

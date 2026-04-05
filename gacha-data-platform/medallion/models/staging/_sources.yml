@@ -66,3 +66,25 @@ sources:
           - name: source_table
           - name: source_schema
           - name: ingested_at
+
+      - name: characters
+        description: "CDC events for character reference data."
+        columns:
+          - name: id
+          - name: data
+          - name: event
+          - name: event_timestamp
+          - name: source_table
+          - name: source_schema
+          - name: ingested_at
+
+      - name: banners
+        description: "CDC events for banner reference data."
+        columns:
+          - name: id
+          - name: data
+          - name: event
+          - name: event_timestamp
+          - name: source_table
+          - name: source_schema
+          - name: ingested_at

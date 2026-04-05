@@ -46,7 +46,7 @@ def init_bronze_tables() -> None:
     """Create Bronze tables in DuckDB if they don't exist."""
     with _duckdb_lock:
         conn = _get_duckdb()
-        tables = ["pulls", "transactions", "players", "player_pity", "player_inventory"]
+        tables = ["pulls", "transactions", "players", "player_pity", "player_inventory", "characters", "banners"]
         for table in tables:
             conn.execute(f"""
                 CREATE TABLE IF NOT EXISTS bronze.{table} (
