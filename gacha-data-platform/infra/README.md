@@ -10,7 +10,7 @@ Pub/Sub Topic + Sub      ← CDC message queue
 Dataflow Job             ← Beam pipeline
 BigQuery Dataset         ← Bronze / Silver / Gold
 Cloud Run                ← UI + Chat
-Langfuse (self-hosted)   ← On GKE or use Langfuse Cloud
+Logfire                  ← Observability (Logfire Cloud)
 ```
 
 ## Deployment

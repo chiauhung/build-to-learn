@@ -6,7 +6,7 @@ LLM query layer over gacha analytics. Natural language → SQL → results.
 
 - **Pydantic AI** — Agent framework, structured outputs
 - **Chainlit** — Conversational UI (embedded in NiceGUI or standalone)
-- **Langfuse** — Tracing, prompt management, cost tracking
+- **Logfire** — Tracing, observability, cost tracking
 - **DuckDB / BigQuery** — Query backend (local / GCP)
 
 ## What You Can Ask
@@ -27,10 +27,10 @@ User question
   → Agent generates SQL against Gold layer
   → Executes on DuckDB/BigQuery
   → Returns formatted answer
-  → Langfuse traces the full chain
+  → Logfire traces the full chain
 ```
 
 ## Key Files
 
 - **`agent.py`** — Pydantic AI agent definition, tools, system prompt
-- **`prompts/`** — Versioned prompt templates (managed via Langfuse or local)
+- **`prompts/`** — Versioned prompt templates (managed locally)

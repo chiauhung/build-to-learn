@@ -1,4 +1,4 @@
-.PHONY: up down seed seed-small pipeline ui chat reset logs status dashboard
+.PHONY: up down seed seed-small pipeline ui chat reset logs status dashboard dashboard-sources
 
 # --- Docker ---
 up:
@@ -15,6 +15,7 @@ down:
 
 reset:
 	docker compose down -v
+	rm -f data/warehouse.duckdb data/warehouse.duckdb.wal
 	docker compose up -d
 
 logs:
@@ -64,6 +65,9 @@ dbt-all:
 # --- Dashboard (Evidence) ---
 dashboard:
 	cd dashboard && npx evidence dev
+
+dashboard-sources:
+	cd dashboard && npx evidence sources
 
 # --- UI ---
 ui:

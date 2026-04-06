@@ -11,6 +11,9 @@ medallion/target/
 medallion/dbt_packages/
 medallion/logs/
 
+# Source videos (GIFs committed instead)
+assets/*.mov
+
 # Evidence dashboard
 dashboard/node_modules/
 dashboard/.evidence/

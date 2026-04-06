@@ -111,8 +111,8 @@ def main() -> None:
 
         # --- Silver ---
         silver_table = SILVER_NAME[table]
-        slv_count = duck_count(dk, "silver", silver_table)
-        slv_ids = duck_ids(dk, "silver", silver_table)
+        slv_count = duck_count(dk, "main_silver", silver_table)
+        slv_ids = duck_ids(dk, "main_silver", silver_table)
 
         # Row counts
         print(f"  {'Postgres':<12} {src_count:>8} rows")

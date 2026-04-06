@@ -13,8 +13,29 @@ Not a game. It's the **data infrastructure behind one.**
 - **Kimball Star Schema:** Facts + dimensions modeled in dbt with 58 tests
 - **Local-first:** Full stack runs on Docker Compose — no cloud account needed
 - **Dual warehouse:** DuckDB for local dev, BigQuery for GCP (same dbt models, different profiles)
-- **LLM Query Layer:** Natural language queries over gacha analytics (planned — Pydantic AI)
-- **UI:** NiceGUI web interface (planned)
+- **Demo UI:** NiceGUI game interface — pull for husbandos, top up crystals, view collection. Every click writes to Postgres for live CDC demo.
+- **Analytics Dashboard:** Evidence.dev — luck analysis, whale leaderboard, character stats, banner performance
+- **LLM Query Layer:** Natural language queries over gacha analytics (planned — Pydantic AI + Logfire)
+
+---
+
+## Demo
+
+### Game UI — Pull, Top Up, Collect
+![ui-demo](./assets/demo-ui.gif)
+
+### Analytics Dashboard (Evidence.dev)
+![dashboard-demo](./assets/demo-dashboard.gif)
+
+### Pipeline in Action
+
+| Seed | CDC Pipeline |
+|------|-------------|
+| ![seed](./assets/seed.png) | ![pipeline](./assets/pipeline.png) |
+
+| dbt Transform | Data Reconciliation |
+|--------------|-------------------|
+| ![dbt](./assets/dbt.png) | ![reconcile](./assets/reconcile.png) |
 
 ---
 
@@ -55,11 +76,17 @@ make reconcile           # Postgres vs DuckDB row/ID reconciliation
 
 # 5. Transform Bronze → Silver → Gold
 make dbt-all             # run + test
+
+# 6. Launch demo UI (pull husbandos, top up crystals)
+make ui                  # http://localhost:8899
+
+# 7. Launch analytics dashboard
+make dashboard           # http://localhost:3000
 ```
 
 No GCP account needed. Everything runs locally via Docker + DuckDB.
 
-> **Note:** DuckDB is single-writer — stop the pipeline (`Ctrl+C`) before running dbt or reconcile.
+> **Note:** DuckDB is single-writer — stop the pipeline (`Ctrl+C`) before running dbt, reconcile, or dashboard.
 
 ---
 
@@ -82,8 +109,9 @@ graph TD
     I --> N(dim_banners)
     I --> O(agg_player_spending)
 
-    I --> P[NiceGUI — planned]
-    I --> Q[Dashboard — planned]
+    B --> P[NiceGUI Demo UI]
+    P -->|writes pulls & transactions| B
+    I --> Q[Evidence Dashboard]
     I --> R[Pydantic AI Chat — planned]
 
     style A fill:#f9f,stroke:#333
@@ -112,11 +140,12 @@ gacha-data-platform/
 │   └── models/marts/        ← 6 mart models (Kimball star schema)
 ├── scripts/                 ← Init scripts + data reconciliation
 ├── tests/                   ← 34 tests (gacha math + pipeline transforms)
-├── chat/                    ← Pydantic AI agent + Langfuse (planned)
-├── ui/                      ← NiceGUI web interface (planned)
+├── dashboard/               ← Evidence.dev analytics (SQL + markdown)
+├── chat/                    ← Pydantic AI agent + Logfire (planned)
+├── ui/                      ← NiceGUI demo interface (writes to Postgres)
 ├── infra/                   ← Pulumi GCP deployment (planned)
 ├── docker-compose.yml       ← Postgres, Pub/Sub emulator, Debezium
-├── Makefile                 ← make up / seed / pipeline / dbt-all / reconcile
+├── Makefile                 ← make up / seed / pipeline / dbt-all / ui / dashboard
 └── pyproject.toml           ← uv managed dependencies
 ```
 
@@ -131,8 +160,8 @@ gacha-data-platform/
 | Pipeline | Beam DirectRunner | Dataflow |
 | Warehouse | DuckDB | BigQuery |
 | UI + Chat | NiceGUI (localhost) | Cloud Run |
-| Tracing | Langfuse container | Langfuse Cloud |
+| Tracing | Logfire | Logfire Cloud |
 
 ---
 
-`Python` · `Apache Beam` · `Debezium` · `PostgreSQL` · `DuckDB` · `BigQuery` · `Pub/Sub` · `dbt` · `Docker` · `uv`
+`Python` · `Apache Beam` · `Debezium` · `PostgreSQL` · `DuckDB` · `BigQuery` · `Pub/Sub` · `dbt` · `NiceGUI` · `Evidence.dev` · `Docker` · `uv`

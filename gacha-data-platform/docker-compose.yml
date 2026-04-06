@@ -71,22 +71,6 @@ services:
       pubsub-init:
         condition: service_completed_successfully
 
-  # ── Observability: Langfuse ────────────────────────────────────────────────
-  # Langfuse is only needed for the chat/LLM layer (not built yet).
-  # When ready, run with: docker compose --profile observability up
-  langfuse:
-    image: langfuse/langfuse:latest
-    profiles: ["observability"]
-    environment:
-      DATABASE_URL: postgresql://gacha:gacha_local@postgres:5432/langfuse
-      NEXTAUTH_SECRET: local-secret-change-me
-      NEXTAUTH_URL: http://localhost:3000
-      SALT: local-salt-change-me
-    ports:
-      - "3000:3000"
-    depends_on:
-      postgres:
-        condition: service_healthy
 
 volumes:
   postgres_data:
