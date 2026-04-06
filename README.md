@@ -38,19 +38,21 @@ End-to-end data platform built around a husbando gacha game. CDC streaming from 
 
 ---
 
-### [Kimball Data Warehouse](./kimball-practice/)
-
-Implements the retail sales example from *The Data Warehouse Toolkit* (Kimball) from scratch — star schema design, SCD Type 2 dimensions, and an Apache Beam ETL pipeline that takes messy staging data to a clean fact table.
-
-`Python` · `Apache Beam` · `PostgreSQL` · `Star Schema` · `SCD Type 2`
-
----
-
 ### [Early Work](./early-work/)
 
 Notebooks from 2017–2020 — older and less polished, kept for authenticity.
 
 - **[Statistics](./early-work/statistics/)** — Linear regression from first principles (R², F-stat, QQ plots) and Bayesian linear regression with PyMC3. From my MSc in Statistics.
+
+---
+
+### [Textbook](./textbook/)
+
+Utilities for extracting content from technical books.
+
+- **[extract_text.py](./textbook/extract_text.py)** — PDF text extractor using `pdfplumber`, used to pull pages from *The Data Warehouse Toolkit* (Kimball).
+
+`Python` · `pdfplumber`
 
 ---
 
