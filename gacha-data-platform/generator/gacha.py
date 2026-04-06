@@ -177,6 +177,7 @@ def perform_pull(
 
     # Determine rarity.
     is_hard_pity_trigger = pity.pity_count >= hard_pity
+    pity_at_pull = pity.pity_count  # capture before potential reset
 
     if is_hard_pity_trigger or random.random() < ssr_rate:
         rarity = "SSR"
@@ -215,7 +216,7 @@ def perform_pull(
         banner_id=banner["id"],
         character_id=character_id,
         rarity=rarity,
-        pity_count=pity.pity_count if rarity != "SSR" else 0,
+        pity_count=pity_at_pull,
         is_guaranteed=is_guaranteed_win,
         pull_number=pull_number,
         batch_id=batch_id or uuid4(),

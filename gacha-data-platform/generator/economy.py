@@ -37,24 +37,56 @@ PACKAGES: list[dict] = load_packages()
 
 _PAYMENT_METHODS = ["credit_card", "google_pay", "apple_pay"]
 
-# (status, cumulative_weight) — sum to 1.0
-_STATUS_WEIGHTS = [
-    ("success", 0.96),
-    ("failed", 0.99),   # 3% failed
-    ("refunded", 1.00), # 1% refunded
-]
+# Region-weighted payment method distribution.
+# Weights: [credit_card, google_pay, apple_pay]
+_PAYMENT_METHOD_WEIGHTS_BY_REGION: dict[str, list[float]] = {
+    "APAC": [0.20, 0.45, 0.35],
+    "NA":   [0.55, 0.20, 0.25],
+    "EU":   [0.45, 0.30, 0.25],
+}
+
+# Refund rate by package tier.
+_REFUND_RATE_BY_PACKAGE: dict[str, float] = {
+    "pkg-01": 0.005,
+    "pkg-02": 0.005,
+    "pkg-03": 0.015,
+    "pkg-04": 0.015,
+    "pkg-05": 0.030,
+    "pkg-06": 0.030,
+}
+_REFUND_RATE_DEFAULT = 0.010  # fallback for unknown packages
+
+# Failed rate by payment method.
+_FAILED_RATE_BY_METHOD: dict[str, float] = {
+    "credit_card": 0.050,
+    "google_pay":  0.020,
+    "apple_pay":   0.015,
+}
+_FAILED_RATE_DEFAULT = 0.030  # fallback
 
 
-def _random_payment_method() -> str:
+def _random_payment_method(region: str | None = None) -> str:
+    if region and region in _PAYMENT_METHOD_WEIGHTS_BY_REGION:
+        weights = _PAYMENT_METHOD_WEIGHTS_BY_REGION[region]
+        return random.choices(_PAYMENT_METHODS, weights=weights, k=1)[0]
     return random.choice(_PAYMENT_METHODS)
 
 
-def _random_payment_status() -> str:
+def _random_payment_status(
+    package_id: str | None = None,
+    payment_method: str | None = None,
+) -> str:
+    refund_rate = _REFUND_RATE_BY_PACKAGE.get(package_id or "", _REFUND_RATE_DEFAULT)
+    failed_rate = _FAILED_RATE_BY_METHOD.get(payment_method or "", _FAILED_RATE_DEFAULT)
+
     roll = random.random()
-    for status, threshold in _STATUS_WEIGHTS:
-        if roll < threshold:
-            return status
-    return "success"  # fallback — should never reach here
+    success_rate = 1.0 - failed_rate - refund_rate
+    if roll < success_rate:
+        return "success"
+    elif roll < success_rate + failed_rate:
+        return "failed"
+    else:
+        return "refunded"
 
 
 # ---------------------------------------------------------------------------
@@ -95,6 +127,7 @@ def create_transaction(
     payment_method: str | None = None,
     is_first_buy: bool = False,
     *,
+    region: str | None = None,
     transacted_at=None,
 ) -> Transaction:
     """Create a Transaction for a crystal package purchase.
@@ -105,6 +138,7 @@ def create_transaction(
         payment_method: Override payment method; random if None.
         is_first_buy:   True if this is the first purchase of this package tier
                         by this player (caller is responsible for tracking this).
+        region:         Player's region — used to weight payment method selection.
         transacted_at:  Override transaction timestamp (useful for bulk seeding).
 
     Returns:
@@ -112,8 +146,9 @@ def create_transaction(
     """
     from datetime import datetime
 
-    method = payment_method or _random_payment_method()
-    status = _random_payment_status()
+    method = payment_method or _random_payment_method(region=region)
+    pkg_id = package.get("id")
+    status = _random_payment_status(package_id=pkg_id, payment_method=method)
     crystals = crystals_for_purchase(package, is_first_buy)
 
     # If payment failed or was refunded, no crystals were actually added.

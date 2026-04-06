@@ -1,0 +1,4 @@
+name: gacha
+type: duckdb
+options:
+  filename: warehouse.duckdb

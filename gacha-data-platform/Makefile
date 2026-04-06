@@ -1,4 +1,4 @@
-.PHONY: up down seed seed-small pipeline ui chat reset logs status
+.PHONY: up down seed seed-small pipeline ui chat reset logs status dashboard
 
 # --- Docker ---
 up:
@@ -60,6 +60,10 @@ dbt-seed:
 
 dbt-all:
 	cd medallion && uv run dbt run --profiles-dir . && uv run dbt test --profiles-dir .
+
+# --- Dashboard (Evidence) ---
+dashboard:
+	cd dashboard && npx evidence dev
 
 # --- UI ---
 ui:

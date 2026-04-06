@@ -11,5 +11,9 @@ medallion/target/
 medallion/dbt_packages/
 medallion/logs/
 
+# Evidence dashboard
+dashboard/node_modules/
+dashboard/.evidence/
+
 # uv
 uv.lock

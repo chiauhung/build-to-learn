@@ -60,11 +60,16 @@ _TOPUP_PER_MONTH = {
     "f2p": (0, 0),
 }
 
-# Whales prefer large packages; dolphins mid-range; F2P never tops up.
-_PACKAGE_PREFERENCES = {
-    "whale": ["pkg-04", "pkg-05", "pkg-03"],
-    "dolphin": ["pkg-02", "pkg-03", "pkg-01"],
-    "f2p": [],
+# Package tiers used for archetype-weighted selection.
+_PACKAGES_BIG   = ["pkg-05", "pkg-06"]
+_PACKAGES_MID   = ["pkg-03", "pkg-04"]
+_PACKAGES_SMALL = ["pkg-01", "pkg-02"]
+
+# (big_weight, mid_weight, small_weight) per archetype.
+_PACKAGE_TIER_WEIGHTS = {
+    "whale":   (0.50, 0.30, 0.20),
+    "dolphin": (0.20, 0.40, 0.40),
+    "f2p":     (0.00, 0.00, 1.00),  # unused — F2P returns [] early
 }
 
 # ---------------------------------------------------------------------------
@@ -74,6 +79,22 @@ _PACKAGE_PREFERENCES = {
 def _assign_archetype() -> str:
     names, weights = zip(*_ARCHETYPES)
     return random.choices(names, weights=weights, k=1)[0]
+
+
+def _pick_package_id(archetype: str) -> str:
+    """Return a package ID weighted by archetype spending tier."""
+    big_w, mid_w, small_w = _PACKAGE_TIER_WEIGHTS[archetype]
+    tier = random.choices(
+        ["big", "mid", "small"],
+        weights=[big_w, mid_w, small_w],
+        k=1,
+    )[0]
+    if tier == "big":
+        return random.choice(_PACKAGES_BIG)
+    elif tier == "mid":
+        return random.choice(_PACKAGES_MID)
+    else:
+        return random.choice(_PACKAGES_SMALL)
 
 
 def _pulls_for_banner(archetype: str) -> int:
@@ -127,18 +148,17 @@ def _generate_transactions_for_player(
     if archetype == "f2p":
         return []
 
-    preferred_packages = _PACKAGE_PREFERENCES[archetype]
-    if not preferred_packages:
+    lo, hi = _TOPUP_PER_MONTH[archetype]
+    if lo == 0 and hi == 0:
         return []
 
-    lo, hi = _TOPUP_PER_MONTH[archetype]
     # Simulate 12 months of activity.
     monthly_buys = [random.randint(lo, hi) for _ in range(12)]
     total_buys = sum(monthly_buys)
 
     txns = []
-    for i in range(total_buys):
-        pkg_id = random.choice(preferred_packages)
+    for _ in range(total_buys):
+        pkg_id = _pick_package_id(archetype)
         pkg = next((p for p in PACKAGES if p["id"] == pkg_id), PACKAGES[0])
 
         tracker_key = f"{player.id}:{pkg_id}"
@@ -154,6 +174,7 @@ def _generate_transactions_for_player(
             player_id=player.id,
             package=pkg,
             is_first_buy=is_first,
+            region=player.region,
             transacted_at=ts,
         )
         txns.append(txn)
