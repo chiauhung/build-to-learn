@@ -6,6 +6,8 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "fastapi>=0.136.1",
+    "grpcio>=1.80.0",
+    "grpcio-tools>=1.80.0",
     "uvicorn>=0.46.0",
     "websockets>=16.0",
 ]

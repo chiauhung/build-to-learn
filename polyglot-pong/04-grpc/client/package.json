@@ -1,0 +1,21 @@
+{
+  "name": "polyglot-pong-v4-client",
+  "version": "0.1.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "gen": "mkdir -p gen && grpc_tools_node_protoc --js_out=import_style=commonjs,binary:./gen --grpc_out=grpc_js:./gen --plugin=protoc-gen-grpc=$(which grpc_tools_node_protoc_plugin) -I ../proto ../proto/ticker.proto",
+    "start": "tsx host.ts"
+  },
+  "dependencies": {
+    "@grpc/grpc-js": "^1.12.0",
+    "google-protobuf": "^3.21.4"
+  },
+  "devDependencies": {
+    "@types/google-protobuf": "^3.15.12",
+    "@types/node": "^20.14.0",
+    "grpc-tools": "^1.12.4",
+    "tsx": "^4.21.0",
+    "typescript": "^5.6.0"
+  }
+}

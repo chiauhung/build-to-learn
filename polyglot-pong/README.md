@@ -28,9 +28,9 @@ By building the same app three times, you'll understand the entire polyglot inte
 | `01-stdio-subprocess/` | Subprocess + length-prefixed JSON-RPC over stdio | How LSP, MCP, and Jupyter actually work under the hood. No ports, no auth, no network — just OS pipes. |
 | `02-websocket/` | FastAPI + WebSocket with a browser frontend | How Chainlit, Discord gateway, and trading dashboards push live updates. Persistent bidirectional connections. |
 | `03-http-sse/` | REST for commands, Server-Sent Events for the feed | How ChatGPT streaming works. Why it's not WebSocket. CDN/proxy-friendly streaming. |
+| `04-grpc/` | Schema-first Protobuf, codegen'd stubs, HTTP/2 streaming | Why service-to-service polyglot backends standardize on gRPC. The contract becomes the code. |
 
-Stretch goals:
-- `04-grpc/` — schema-first with Protobuf, generated TS client + Python server
+Stretch goal:
 - `05-pybind11-embedded/` — skip IPC entirely, link Python into a C++ binary. Feel the ABI pain.
 
 ## The integration landscape (reference)
@@ -78,8 +78,44 @@ polyglot-pong/
 2. **`01-stdio-subprocess/`** — start here. Most educational because nothing is hidden. You'll write the framing protocol yourself in ~50 lines on each side, and Fincept's `PythonWorker.h` will read like a recipe instead of a mystery.
 3. **`02-websocket/`** — see what a "real" framework hides for you.
 4. **`03-http-sse/`** — modern AI-app default. Notice why streaming is easier here than WS for one-way feeds.
+5. **`04-grpc/`** — schema-first design. The contract is the code; codegen enforces it. The bridge to multi-service polyglot backends.
 
 After each version, write a short note in its README: what was easy, what was painful, what surprised you. That's the actual lesson.
+
+## Each version ships three docs
+
+For every `0N-*/` folder you'll find the same three files, each targeting a different reader intent:
+
+- **`README.md`** — "I want to run this." Run instructions, wire protocol summary, what to look at.
+- **`NOTES.md`** — "I want to understand this." Side-by-side symmetry tables, analogies, what the framework hides, when to reach for this pattern.
+- **`BOMB.md`** — "I want to feel the failure modes." Tiny edits that break the protocol on purpose. Each ends with a recommended order of the five highest-impact experiments.
+
+The three-doc split keeps each file focused. Read README first to get it running, NOTES while you read the code, BOMB after you've seen it work — that's when breaking it teaches the most.
+
+## What comes after polyglot-pong
+
+This project teaches you how *bytes* move between two processes. The natural next step is how *requests* move between **many services** — and how you know what happened when one fails.
+
+> **The multi-service + OpenTelemetry project (planned).**
+>
+> A small system that exercises:
+> - **tRPC** (frontend ↔ gateway) — end-to-end type safety in a one-language stack
+> - **gRPC** (gateway ↔ services) — what you learned in v4, now *between* services
+> - **Polyglot services** (Python + Go + maybe Rust) — the real reason gRPC exists
+> - **OpenTelemetry** — one `trace_id` flowing through every service, so you can see "where did this latency come from?"
+> - **Docker Compose** — Jaeger + Grafana to actually visualize the traces
+
+Why this is the right next step (not a left turn):
+
+| Polyglot-pong taught you | The OTEL project will teach you |
+|---|---|
+| One transport at a time | What happens when a request *crosses* transports |
+| Schema-first design (v4) | Same idea, but enforced across team/language boundaries |
+| One server, many clients (v2/v3/v4) | One *gateway*, many *backends* — service fan-out |
+| Why ChatGPT uses SSE (v3) | Why production teams need distributed tracing |
+| Streaming as a method shape (v4) | Stream + retry + timeout + partial failure |
+
+Polyglot-pong is the prerequisite. The OTEL project is the upgrade. Don't start it until you've felt all four versions of pong — otherwise you'll be juggling too many new concepts at once.
 
 ## Fun extensions (once basics work)
 

@@ -1,0 +1,70 @@
+// The schema. THIS is the contract. Both the Python server and the TS
+// client are generated from this file — change it, regenerate, both
+// sides update in lockstep.
+//
+// Compare to v1/v2/v3: those used JSON-RPC, where the wire format is
+// "whatever JSON I happen to send today." gRPC flips this around — the
+// .proto file is the source of truth, and the codegen forces both
+// sides to agree before they can even compile.
+//
+// This is the headline lesson of v4: schema-first design.
+
+syntax = "proto3";
+
+package polyglot_pong;
+
+// One service, four methods. Mirrors v1-v3 method names exactly —
+// only the transport mechanism is changing, not the domain.
+service Ticker {
+  // Unary: one request, one response. Same shape as a REST call.
+  rpc Subscribe(SubscribeRequest) returns (Watchlist);
+  rpc Unsubscribe(UnsubscribeRequest) returns (Watchlist);
+  rpc List(ListRequest) returns (Watchlist);
+  rpc GetPrice(GetPriceRequest) returns (Metrics);
+
+  // Server-streaming: one request, MANY responses streamed over time.
+  // This replaces v1's `tick` notification and v3's SSE stream. Notice
+  // there's no `subscribe + listen on a side channel` split anymore —
+  // the streaming is part of the method itself.
+  rpc StreamTicks(StreamTicksRequest) returns (stream Metrics);
+}
+
+// Every type is explicit. Protobuf field numbers (= 1, = 2, ...) are
+// what actually appears on the wire — names are only for source code.
+// You can rename a field freely; you must NEVER renumber one.
+
+message SubscribeRequest {
+  string repo = 1;
+}
+
+message UnsubscribeRequest {
+  string repo = 1;
+}
+
+message ListRequest {
+  // Empty — but you still need a message type; gRPC has no "void" param.
+}
+
+message GetPriceRequest {
+  string repo = 1;
+}
+
+message StreamTicksRequest {
+  // Empty body — the server streams ticks for every repo this client
+  // has subscribed to via Subscribe(). Client identity is the gRPC
+  // connection itself (we use a peer-id metadata header).
+}
+
+message Watchlist {
+  repeated string repos = 1;
+}
+
+message Metrics {
+  string repo = 1;
+  int32 stars = 2;
+  int32 forks_this_week = 3;
+  int32 commits_today = 4;
+  int32 open_issues = 5;
+  string fetched_at = 6;
+  int32 price = 7;
+}
