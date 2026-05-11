@@ -4,6 +4,8 @@ I learn by building things from scratch, then layering complexity one level at a
 
 Each project starts simple and progressively adds real-world concerns — state management, persistence, security boundaries, production patterns. The goal is to understand **how things actually work**, not just how to use a framework.
 
+Most projects are **Python** and run locally — some add **TypeScript** or **Docker** where the topic demands it. Tags below highlight what's unique to each.
+
 ---
 
 ## Projects
@@ -14,7 +16,7 @@ Build an AI agent from scratch in 7 levels — no frameworks, just a `while` loo
 
 Starts with a hardcoded state machine, ends with a Redis-backed production agent with plan-first execution, history compaction, and chat mode. Each level is a complete runnable script; diff them to see exactly what changed.
 
-`Python` · `Gemini API` · `Redis` · `Agent Architecture`
+`Gemini API` · `Redis` · `Agent Architecture`
 
 ---
 
@@ -26,7 +28,7 @@ Two projects exploring Pydantic AI from different angles:
 
 - **[HR Pipeline Demo](./pydantic-ai/hr-pipeline-demo/)** — Three runnable demos showing production patterns: DI as a security boundary, loop-level control (audit trails, mutation caps, replan loops), and a Chainlit UI with real-time approval flows.
 
-`Python` · `Pydantic AI` · `FastAPI` · `Chainlit` · `DuckDB` · `Redis`
+`Pydantic AI` · `FastAPI` · `Chainlit` · `DuckDB`
 
 ---
 
@@ -34,7 +36,17 @@ Two projects exploring Pydantic AI from different angles:
 
 End-to-end data platform built around a husbando gacha game. CDC streaming from PostgreSQL through Debezium → Pub/Sub → Apache Beam into a DuckDB/BigQuery warehouse, then dbt transforms raw events into a Kimball star schema (Bronze → Silver → Gold). Full Docker Compose stack — no cloud account needed.
 
-`Python` · `Apache Beam` · `Debezium` · `PostgreSQL` · `DuckDB` · `BigQuery` · `Pub/Sub` · `dbt` · `Docker`
+`Apache Beam` · `Debezium` · `Pub/Sub` · `dbt` · `BigQuery` · `Evidence.dev` · `NiceGUI`
+
+---
+
+### [Polyglot Pong](./polyglot-pong/)
+
+Same dashboard, four transport patterns. Build a GitHub-repos-as-fake-stocks ticker four ways — stdio JSON-RPC, WebSocket, HTTP+SSE, and gRPC — so you can *feel* the trade-offs between IPC patterns instead of reading about them.
+
+Each version ships three docs: a `README` (run it), `NOTES` (understand it, with analogies), and `BOMB` (break it on purpose to feel the failure modes). The same `shared/ticker_logic.py` is reused byte-for-byte across all four — the variable is the transport, not the application. Bridges into a future multi-service + OpenTelemetry project.
+
+`Python` · `TypeScript` · `FastAPI` · `WebSocket` · `Server-Sent Events` · `gRPC` · `Protobuf`
 
 ---
 
