@@ -2,7 +2,7 @@
 
 A build-to-learn project for understanding how languages and processes actually talk to each other.
 
-**One toy app. Three integration backends. Same UI.** Build the same dashboard three ways so you can *feel* the trade-offs between subprocess stdio, WebSocket, and HTTP+SSE.
+**One toy app. Four transport backends. Same domain.** Build the same dashboard four ways so you can *feel* the trade-offs between subprocess stdio, WebSocket, HTTP+SSE, and gRPC.
 
 ## The domain: GitHub repos as fake stocks
 
@@ -21,7 +21,7 @@ Why this domain works:
 
 ## What you'll learn
 
-By building the same app three times, you'll understand the entire polyglot integration landscape, not just one slice of it.
+By building the same app four times, you'll understand the entire polyglot integration landscape, not just one slice of it.
 
 | Version | Pattern | What it teaches |
 |---|---|---|
@@ -50,25 +50,30 @@ Every cross-language/cross-process integration boils down to three questions: **
 | Shared memory | mmap | raw bytes | coordinated processes | Apache Arrow Flight |
 | tRPC-style | HTTP/WS but typed | JSON + TS type inference | shared types at compile time | tRPC (JS-only) |
 
-## Repo layout (planned)
+## Repo layout
 
 ```
 polyglot-pong/
 ├── shared/
-│   ├── ticker_logic.py        # the price formula + GitHub fetch — reused across all versions
-│   └── schema.json            # request/response shapes shared by all transports
+│   ├── ticker_logic.py        # price formula + GitHub fetch — reused byte-for-byte across all versions
+│   └── schema.json            # JSON-RPC shapes shared by v1-v3 (v4 uses its own .proto)
 ├── 01-stdio-subprocess/
 │   ├── host.ts                # TS/Node host: spawns python, frames JSON-RPC
 │   ├── worker.py              # Python daemon: reads framed requests, polls GitHub, replies
-│   └── README.md              # protocol spec, how to run
+│   └── README.md / NOTES.md / BOMB.md
 ├── 02-websocket/
 │   ├── server.py              # FastAPI + websockets
-│   ├── client/                # vanilla JS or React frontend
-│   └── README.md
+│   ├── client/index.html      # vanilla JS, native WebSocket
+│   └── README.md / NOTES.md / BOMB.md
 ├── 03-http-sse/
-│   ├── server.py              # FastAPI: REST + SSE endpoints
-│   ├── client/
-│   └── README.md
+│   ├── server.py              # FastAPI: POST /rpc + GET /events (SSE)
+│   ├── client/index.html      # vanilla JS, native EventSource + fetch
+│   └── README.md / NOTES.md / BOMB.md
+├── 04-grpc/
+│   ├── proto/ticker.proto     # the contract — codegen for both sides
+│   ├── server/server.py       # Python gRPC server (grpc.aio)
+│   ├── client/host.ts         # TS Node CLI client (@grpc/grpc-js)
+│   └── README.md / NOTES.md / BOMB.md
 └── README.md                  # this file
 ```
 
@@ -130,7 +135,7 @@ Polyglot-pong is the prerequisite. The OTEL project is the upgrade. Don't start 
 
 GitHub API gives you 60 unauthed requests/hour, 5000 with a personal access token (`export GITHUB_TOKEN=...`). Plenty for a 20-repo watchlist polled every 30 seconds.
 
-Each version has its own README with run instructions. Start a fresh Claude session in this folder to scaffold v1.
+Each version has its own README with run instructions.
 
 ## Origin
 
