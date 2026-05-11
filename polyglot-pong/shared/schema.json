@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "polyglot-pong wire protocol",
+  "description": "Request/response shapes shared by all three transport versions. The same method names and payload shapes are used over stdio JSON-RPC, WebSocket, and HTTP+SSE — only the framing/transport changes.",
+  "definitions": {
+    "Metrics": {
+      "type": "object",
+      "required": ["repo", "stars", "forks_this_week", "commits_today", "open_issues", "fetched_at", "price"],
+      "properties": {
+        "repo": {"type": "string", "description": "owner/name"},
+        "stars": {"type": "integer"},
+        "forks_this_week": {"type": "integer"},
+        "commits_today": {"type": "integer"},
+        "open_issues": {"type": "integer"},
+        "fetched_at": {"type": "string", "format": "date-time"},
+        "price": {"type": "integer", "description": "stars + 10*forks_this_week + 100*commits_today - 5*open_issues"}
+      }
+    }
+  },
+  "methods": {
+    "subscribe": {
+      "description": "Add a repo to the polled watchlist. Worker will start emitting `tick` notifications for it.",
+      "params": {"type": "object", "required": ["repo"], "properties": {"repo": {"type": "string"}}},
+      "result": {"type": "object", "required": ["watchlist"], "properties": {"watchlist": {"type": "array", "items": {"type": "string"}}}}
+    },
+    "unsubscribe": {
+      "description": "Remove a repo from the watchlist.",
+      "params": {"type": "object", "required": ["repo"], "properties": {"repo": {"type": "string"}}},
+      "result": {"type": "object", "required": ["watchlist"], "properties": {"watchlist": {"type": "array", "items": {"type": "string"}}}}
+    },
+    "get_price": {
+      "description": "One-shot fetch — does not subscribe.",
+      "params": {"type": "object", "required": ["repo"], "properties": {"repo": {"type": "string"}}},
+      "result": {"$ref": "#/definitions/Metrics"}
+    },
+    "list": {
+      "description": "Return the current watchlist.",
+      "params": {"type": "object"},
+      "result": {"type": "object", "required": ["watchlist"], "properties": {"watchlist": {"type": "array", "items": {"type": "string"}}}}
+    }
+  },
+  "notifications": {
+    "tick": {
+      "description": "Server → client push. Emitted on every poll cycle for each subscribed repo.",
+      "params": {"$ref": "#/definitions/Metrics"}
+    },
+    "error": {
+      "description": "Out-of-band error (e.g. GitHub rate-limit) that isn't tied to a specific request.",
+      "params": {"type": "object", "required": ["message"], "properties": {"repo": {"type": "string"}, "message": {"type": "string"}}}
+    }
+  }
+}

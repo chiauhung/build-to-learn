@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>polyglot-pong · v3 (http+sse)</title>
+<style>
+  body { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
+  h1 { font-size: 1.1rem; }
+  #status, #sid { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 4px; font-size: 0.8rem; }
+  .ok { background: #d4f4dd; }
+  .bad { background: #f4d4d4; }
+  .sid { background: #e0e8f4; }
+  input, button { font: inherit; padding: 0.3rem 0.5rem; }
+  #log { white-space: pre-wrap; background: #f6f6f6; padding: 1rem; border-radius: 6px; height: 50vh; overflow-y: auto; }
+  .tick { color: #0a5; }
+  .err { color: #c33; }
+  .sys { color: #888; }
+</style>
+</head>
+<body>
+<h1>
+  polyglot-pong · v3 (http + sse) &nbsp;
+  <span id="status" class="bad">disconnected</span> &nbsp;
+  <span id="sid" class="sid">session: —</span>
+</h1>
+
+<p>
+  <input id="repo" placeholder="owner/name (e.g. vercel/next.js)" size="30" />
+  <button onclick="cmd('subscribe')">subscribe</button>
+  <button onclick="cmd('unsubscribe')">unsubscribe</button>
+  <button onclick="cmd('get_price')">get_price</button>
+  <button onclick="cmd('list')">list</button>
+</p>
+
+<div id="log"></div>
+
+<script>
+/**
+ * Browser-side counterpart to v3's server.
+ *
+ * Key shift from v2: commands and the stream are TWO DIFFERENT REQUESTS.
+ *
+ *   - GET /events  → long-lived SSE; server pushes `tick` and `error` events
+ *   - POST /rpc    → one short-lived request per command, returns JSON
+ *
+ * The session_id ties them together. The browser's EventSource API
+ * handles SSE framing for us — no manual buffer accumulation, no
+ * Content-Length parsing. We just listen for named events.
+ */
+
+const log = document.getElementById('log');
+const statusEl = document.getElementById('status');
+const sidEl = document.getElementById('sid');
+const repoInput = document.getElementById('repo');
+
+let sessionId = null;
+let es = null;          // EventSource (the SSE stream)
+let nextId = 1;
+
+function append(line, cls = '') {
+  const div = document.createElement('div');
+  if (cls) div.className = cls;
+  div.textContent = line;
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+}
+
+function setStatus(connected) {
+  statusEl.textContent = connected ? 'connected' : 'disconnected';
+  statusEl.className = connected ? 'ok' : 'bad';
+}
+
+function fmtTick(m) {
+  const ts = (m.fetched_at ?? '').slice(11, 19);
+  return `[${ts}] ${m.repo.padEnd(28)} price=${String(m.price).padStart(8)} ` +
+    `★${m.stars} fork7d=${m.forks_this_week} commitsToday=${m.commits_today} issues=${m.open_issues}`;
+}
+
+function openStream() {
+  es = new EventSource('/events');
+
+  // The 'hello' event carries our session_id. Without it, POST /rpc will reject us.
+  es.addEventListener('hello', (e) => {
+    const { session_id } = JSON.parse(e.data);
+    sessionId = session_id;
+    sidEl.textContent = `session: ${sessionId.slice(0, 8)}…`;
+    setStatus(true);
+    append(`[connected — session ${sessionId.slice(0, 8)}…]`, 'sys');
+  });
+
+  es.addEventListener('tick', (e) => append(fmtTick(JSON.parse(e.data)), 'tick'));
+
+  es.addEventListener('error_event', (e) => {
+    const p = JSON.parse(e.data);
+    append(`[error] ${p.repo ?? ''} ${p.message}`, 'err');
+  });
+
+  // The native 'error' event fires on disconnect. EventSource auto-reconnects,
+  // but on reconnect the server issues a NEW session_id — so we lose our
+  // server-side watchlist. Real apps store watchlists in a DB and rehydrate.
+  es.onerror = () => {
+    setStatus(false);
+    append('[stream interrupted — browser will auto-retry]', 'sys');
+  };
+}
+
+// We can't reuse the SSE 'error' event name in addEventListener because
+// EventSource reserves it for connection errors. So the server emits
+// 'error_event' for application errors instead.
+
+async function rpc(method, params = {}) {
+  if (!sessionId) throw new Error('not connected yet');
+  const res = await fetch('/rpc', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: nextId++,
+      session_id: sessionId,
+      method,
+      params,
+    }),
+  });
+  if (!res.ok) throw new Error(`http ${res.status}: ${await res.text()}`);
+  const msg = await res.json();
+  if (msg.error) throw new Error(`${msg.error.code}: ${msg.error.message}`);
+  return msg.result;
+}
+
+async function cmd(method) {
+  const repo = repoInput.value.trim();
+  const params = method === 'list' ? {} : { repo };
+  try {
+    const result = await rpc(method, params);
+    if (method === 'get_price') append(fmtTick(result));
+    else append(`${method} → ${JSON.stringify(result)}`, 'sys');
+  } catch (e) {
+    append(`error: ${e.message}`, 'err');
+  }
+}
+
+openStream();
+</script>
+</body>
+</html>

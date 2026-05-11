@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>polyglot-pong · v2 (websocket)</title>
+<style>
+  body { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
+  h1 { font-size: 1.1rem; }
+  #status { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 4px; font-size: 0.8rem; }
+  .ok { background: #d4f4dd; }
+  .bad { background: #f4d4d4; }
+  input, button { font: inherit; padding: 0.3rem 0.5rem; }
+  #log { white-space: pre-wrap; background: #f6f6f6; padding: 1rem; border-radius: 6px; height: 50vh; overflow-y: auto; }
+  .tick { color: #0a5; }
+  .err { color: #c33; }
+  .sys { color: #888; }
+</style>
+</head>
+<body>
+<h1>polyglot-pong · v2 (websocket) &nbsp; <span id="status" class="bad">disconnected</span></h1>
+
+<p>
+  <input id="repo" placeholder="owner/name (e.g. vercel/next.js)" size="30" />
+  <button onclick="cmd('subscribe')">subscribe</button>
+  <button onclick="cmd('unsubscribe')">unsubscribe</button>
+  <button onclick="cmd('get_price')">get_price</button>
+  <button onclick="cmd('list')">list</button>
+</p>
+
+<div id="log"></div>
+
+<script>
+/**
+ * Browser-side counterpart to v1's host.ts.
+ *
+ * v1 used Node's spawn() + length-prefixed JSON-RPC over stdio.
+ * v2 uses the browser's native WebSocket: same JSON-RPC envelope,
+ * but framing/lifecycle is handled by the browser — we just call
+ * ws.send(json) and listen for 'message' events.
+ *
+ * Things to notice vs v1:
+ *   - No buffer accumulation. WS preserves message boundaries.
+ *   - Auto-reconnect is on us (we do a naive 2s retry).
+ *   - Promise-based request/response correlation is the same idea
+ *     as v1's pending Map — `id` matches `id`.
+ */
+
+const log = document.getElementById('log');
+const statusEl = document.getElementById('status');
+const repoInput = document.getElementById('repo');
+
+let ws = null;
+let nextId = 1;
+const pending = new Map(); // id → {resolve, reject}
+
+function append(line, cls = '') {
+  const div = document.createElement('div');
+  if (cls) div.className = cls;
+  div.textContent = line;
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+}
+
+function setStatus(connected) {
+  statusEl.textContent = connected ? 'connected' : 'disconnected';
+  statusEl.className = connected ? 'ok' : 'bad';
+}
+
+function fmtTick(m) {
+  const ts = (m.fetched_at ?? '').slice(11, 19);
+  return `[${ts}] ${m.repo.padEnd(28)} price=${String(m.price).padStart(8)} ` +
+    `★${m.stars} fork7d=${m.forks_this_week} commitsToday=${m.commits_today} issues=${m.open_issues}`;
+}
+
+function connect() {
+  const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+  ws = new WebSocket(`${proto}://${location.host}/ws`);
+
+  ws.onopen = () => {
+    setStatus(true);
+    append('[connected]', 'sys');
+  };
+
+  ws.onclose = () => {
+    setStatus(false);
+    append('[disconnected — retrying in 2s]', 'sys');
+    // Reject anything still in flight so the UI doesn't hang.
+    for (const p of pending.values()) p.reject(new Error('socket closed'));
+    pending.clear();
+    setTimeout(connect, 2000);
+  };
+
+  ws.onerror = () => append('[ws error]', 'err');
+
+  ws.onmessage = (e) => {
+    const msg = JSON.parse(e.data);
+    // Notification — no id.
+    if (msg.method && msg.id === undefined) {
+      if (msg.method === 'tick') append(fmtTick(msg.params), 'tick');
+      else if (msg.method === 'error') append(`[error] ${msg.params.repo ?? ''} ${msg.params.message}`, 'err');
+      else append(`[notif:${msg.method}] ${JSON.stringify(msg.params)}`, 'sys');
+      return;
+    }
+    // Response — has id.
+    const p = pending.get(msg.id);
+    if (!p) return;
+    pending.delete(msg.id);
+    if (msg.error) p.reject(new Error(`${msg.error.code}: ${msg.error.message}`));
+    else p.resolve(msg.result);
+  };
+}
+
+function request(method, params = {}) {
+  if (!ws || ws.readyState !== WebSocket.OPEN) {
+    return Promise.reject(new Error('not connected'));
+  }
+  const id = nextId++;
+  return new Promise((resolve, reject) => {
+    pending.set(id, { resolve, reject });
+    ws.send(JSON.stringify({ jsonrpc: '2.0', id, method, params }));
+  });
+}
+
+async function cmd(method) {
+  const repo = repoInput.value.trim();
+  const params = method === 'list' ? {} : { repo };
+  try {
+    const result = await request(method, params);
+    if (method === 'get_price') append(fmtTick(result));
+    else append(`${method} → ${JSON.stringify(result)}`, 'sys');
+  } catch (e) {
+    append(`error: ${e.message}`, 'err');
+  }
+}
+
+connect();
+</script>
+</body>
+</html>

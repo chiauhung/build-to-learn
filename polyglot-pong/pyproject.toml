@@ -1,0 +1,11 @@
+[project]
+name = "polyglot-pong"
+version = "0.1.0"
+description = "Same dashboard, three integration backends. Feel the trade-offs."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi>=0.136.1",
+    "uvicorn>=0.46.0",
+    "websockets>=16.0",
+]
